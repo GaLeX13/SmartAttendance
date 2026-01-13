@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["Title"] = "Adaugă studenți";
+}
+
+<div class="app-shell">
+    <div class="hero-card dashboard-card">
+
+        <div class="brand">Study Sync</div>
+
+        <div class="hero-title">
+            Adaugă studenți – @ViewBag.CourseName
+        </div>
+
+        <form method="post">
+            <input type="hidden" name="courseId" value="@ViewBag.CourseId" />
+
+            <label class="lbl">
+                Email-uri studenți (un email pe linie)
+            </label>
+
+            <textarea name="emails"
+                      class="form-control"
+                      rows="8"
+                      placeholder="ex:
+student1@ucv.ro
+student2@ucv.ro"></textarea>
+
+            <div class="add-actions">
+                <button type="submit" class="btn-primary-soft">
+                    Salvează
+                </button>
+
+                <a href="@Url.Action("Index", "Professor")"
+                   class="btn-ghost">
+                    Înapoi
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>

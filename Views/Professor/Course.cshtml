@@ -1,0 +1,65 @@
+﻿@model SmartAttendance.Models.Course
+
+<div class="app-shell">
+    <div class="hero-card">
+
+        <div class="hero-title" style="font-size:32px;">
+            @Model.Name
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:24px; margin-top:24px;">
+
+            <!-- STÂNGA: STATISTICI -->
+            <div class="card-soft">
+                <h3>Statistici</h3>
+
+                <div style="margin-top:12px;">
+                    <b>Studenți:</b> @Model.CourseStudents.Count
+                </div>
+
+                <div style="margin-top:6px;">
+                    <b>Prezență medie:</b> @Model.AttendancePercent%
+                </div>
+
+                <div style="margin-top:12px; color:var(--muted);">
+                    (urmează grafice)
+                </div>
+            </div>
+
+            <!-- DREAPTA: STUDENȚI -->
+            <div class="card-soft">
+                <h3>Studenți înscriși</h3>
+
+                <div class="students-scroll">
+                    @foreach (var cs in Model.CourseStudents)
+                    {
+                        <div class="student-row">
+                            <div class="student-email">
+                                @cs.Student.Email
+                            </div>
+
+                            <div class="student-actions">
+                                <a class="icon-btn" title="View">👁️</a>
+                                <a class="icon-btn" title="Edit">✏️</a>
+                                <form method="post"
+                                      action="@Url.Action("RemoveStudent", "Professor")"
+                                      style="display:inline;">
+                                    <input type="hidden" name="courseId" value="@Model.Id" />
+                                    <input type="hidden" name="studentId" value="@cs.StudentId" />
+                                    <button class="icon-btn danger" type="submit">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <a href="@Url.Action("Index", "Professor")"
+           style="display:inline-block; margin-top:18px;">
+            ← Înapoi la dashboard
+        </a>
+
+    </div>
+</div>

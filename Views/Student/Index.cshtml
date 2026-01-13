@@ -1,0 +1,49 @@
+﻿@model SmartAttendance.Models.Student
+
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="app-shell">
+    <div class="hero-card">
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="brand">Study Sync</div>
+
+            <a href="@Url.Action("Logout", "StudentAuth")"
+               style="font-weight:700; color:#2f7dbf; text-decoration:none;">
+                Logout
+            </a>
+        </div>
+
+        <div class="hero-title" style="font-size: 34px;">
+            Salut, @Model.Email!
+        </div>
+
+        <div class="hero-subtitle">
+            Cursurile la care ești înscris:
+        </div>
+
+        <div style="margin-top:24px; display:grid; gap:12px;">
+            @if (!Model.CourseStudents.Any())
+            {
+                <div style="color:#888; font-weight:600;">
+                    Nu ești înscris la niciun curs încă.
+                </div>
+            }
+            else
+            {
+                foreach (var cs in Model.CourseStudents)
+                {
+                    <div class="course-card">
+                        <strong>@cs.Course.Name</strong><br />
+                        <span style="color:#666;">
+                            @(cs.Course.IsLab ? "Laborator" : "Curs")
+                        </span>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+</div>

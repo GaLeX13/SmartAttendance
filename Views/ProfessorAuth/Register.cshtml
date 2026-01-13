@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Creare cont Profesor";
+}
+
+<div class="app-shell">
+    <div class="hero-card" style="padding: 34px 42px;">
+
+        <div class="brand">Study Sync</div>
+
+        <div class="hero-title" style="font-size: 34px; margin-top: 18px;">
+            Creare cont <span style="color:#2f7dbf;">Profesor</span>
+        </div>
+
+        <form method="post" style="max-width:520px; margin-top:18px;">
+            <div style="display:grid; gap:12px;">
+
+                <label>Adresă de email</label>
+                <input name="email" class="form-control" />
+
+                <label>Parolă</label>
+                <input name="password" type="password" class="form-control" />
+
+                <label>Confirmă parola</label>
+                <input name="confirmPassword" type="password" class="form-control" />
+
+                <label>Cheie de acces</label>
+                <input name="accessKey" class="form-control" placeholder="Necesară la înregistrare" />
+
+                @if (ViewBag.Error != null)
+                {
+                    <div style="color:#b00020; font-weight:600;">@ViewBag.Error</div>
+                }
+
+                <button class="btn-primary-soft" style="width:220px;">
+                    Creează cont
+                </button>
+
+                <a href="@Url.Action("Login", "ProfessorAuth")"
+                   style="font-weight:700; color:#2f7dbf; text-decoration:none;">
+                    Ai deja cont? Autentificare
+                </a>
+            </div>
+        </form>
+
+        <div class="footer-note">
+            Proiect de licență realizat de Gheorghe D. Alexandru, Student S1B - CEN.<br />
+            Sub îndrumarea Dr. Ing. Eugen Dumitrașcu, Șef de lucrări, Universitatea din Craiova
+        </div>
+
+    </div>
+</div>

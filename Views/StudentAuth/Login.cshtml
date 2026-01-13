@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Autentificare Student";
+}
+
+<div class="app-shell">
+    <div class="hero-card" style="padding: 34px 42px;">
+
+        <div class="brand">Study Sync</div>
+
+        <div class="hero-title" style="font-size: 34px; margin-top: 18px;">
+            Autentificare <span style="color:#2f7dbf;">Student</span>
+        </div>
+
+        <form method="post" style="max-width:520px; margin-top:18px;">
+            <div style="display:grid; gap:12px;">
+                <div style="display:grid; gap:6px;">
+                    <label style="color:var(--muted); font-weight:600;">Adresă de email</label>
+                    <input name="email" class="form-control" placeholder="ion.popescu@student.ucv.ro" />
+                </div>
+
+                <div style="display:grid; gap:6px;">
+                    <label style="color:var(--muted); font-weight:600;">Parolă</label>
+                    <input name="password" type="password" class="form-control" placeholder="password" />
+                </div>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div style="color:#b00020; font-weight:600;">@ViewBag.Error</div>
+                }
+
+                <button class="btn-primary-soft" type="submit" style="width: 220px; margin-top: 6px;">
+                    Autentificare
+                </button>
+
+                <a href="@Url.Action("Register", "StudentAuth")"
+                   style="display:inline-block; margin-top:6px; font-weight:700; color:#2f7dbf; text-decoration:none;">
+                    Creează cont nou
+                </a>
+            </div>
+        </form>
+
+        <div class="footer-note">
+            Proiect de licență realizat de Gheorghe D. Alexandru, Student S1b - CEN.<br />
+            Sub îndrumarea Dr. Ing. Eugen Dumitrașcu, Șef de lucrări, Universitatea din Craiova
+        </div>
+    </div>
+</div>

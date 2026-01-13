@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="app-shell">
+    <div class="hero-card">
+
+        <div class="brand">Study Sync</div>
+
+        <div id="introBlock" class="fade-lite">
+            <div class="hero-title">Bine ați venit la Sistemul de Prezență Smart!</div>
+            <div class="hero-subtitle">
+                Platformă integrată pentru înregistrarea rapidă și sigură a prezenței
+                studenților la cursuri și laboratoare, folosind tehnologie RFID și biometrică.
+            </div>
+
+            <button id="btnStart" class="btn-primary-soft">START</button>
+        </div>
+
+        <div id="choiceBlock" class="fade-lite hidden">
+
+            <div class="choice-grid">
+
+                <!-- STÂNGA: feature list + butoane -->
+                <div class="choice-left">
+
+                    <div class="feature-list">
+                        <div>✔ Prezență automată prin RFID și amprentă</div>
+                        <div>✔ Validare inteligentă pe interval orar</div>
+                        <div>✔ Statistici și rapoarte în timp real</div>
+                        <div>✔ Integrare hardware directă (ESP / Arduino)</div>
+                    </div>
+
+                    <div class="choice-header">Alege tipul de conexiune</div>
+
+                    <div class="choice-buttons">
+                        <a class="btn-primary-soft" href="@Url.Action("Login", "StudentAuth")">Conexiune Student</a>
+                        <a class="btn-primary-soft" href="@Url.Action("Login", "ProfessorAuth")">Conexiune Profesor</a>
+                    </div>
+
+                </div>
+
+                <!-- DREAPTA: slideshow hardware -->
+                <div class="choice-right">
+                    <div class="hw-title">Hardware (prototip)</div>
+
+                    <div class="hw-slider">
+                        <img class="hw-slide active" src="~/img/hardware/hw1.jpg" alt="Hardware 1" />
+                        <img class="hw-slide" src="~/img/hardware/hw2.jpg" alt="Hardware 2" />
+                        <img class="hw-slide" src="~/img/hardware/hw3.jpg" alt="Hardware 3" />
+                    </div>
+
+                    <div class="hw-caption" id="hwCaption">
+                        ESP/Arduino + RFID + amprentă (prototip)
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="footer-note">
+            Proiect de licență realizat de Gheorghe Alexandru, Student S1B - CEN.<br />
+            Sub îndrumarea Dr. Ing. Eugen Dumitrașcu, Șef de lucrări, Universitatea din Craiova
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const intro = document.getElementById("introBlock");
+    const choice = document.getElementById("choiceBlock");
+    const start = document.getElementById("btnStart");
+
+    start.addEventListener("click", () => {
+        intro.classList.add("hidden");
+        setTimeout(() => {
+            choice.classList.remove("hidden");
+        }, 180);
+    });
+</script>
+<script>
+    const slides = Array.from(document.querySelectorAll(".hw-slide"));
+    const captions = [
+      "ESP/Arduino + RFID + amprentă (prototip)",
+      "Cititor RFID: autentificare rapidă",
+      "Senzor amprentă: identificare biometrică"
+    ];
+    const captionEl = document.getElementById("hwCaption");
+
+    let idx = 0;
+
+    function showSlide(i) {
+      slides.forEach(s => s.classList.remove("active"));
+      slides[i].classList.add("active");
+      if (captionEl) captionEl.textContent = captions[i] ?? "";
+    }
+
+    // pornește automat, chiar dacă user-ul nu apasă start încă
+    showSlide(0);
+
+    setInterval(() => {
+      idx = (idx + 1) % slides.length;
+      showSlide(idx);
+    }, 3500); // 3.5 sec per slide
+</script>

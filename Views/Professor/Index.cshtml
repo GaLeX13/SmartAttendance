@@ -1,0 +1,126 @@
+﻿@model List<SmartAttendance.Models.Course>
+
+@{
+    ViewData["Title"] = "Dashboard Profesor";
+    var courses = Model ?? new List<SmartAttendance.Models.Course>();
+    var hasCourses = courses.Count > 0;
+}
+
+<div class="app-shell">
+    <div class="hero-card dashboard-card">
+
+        <div class="brand">Study Sync</div>
+
+        <div class="hero-title" style="font-size:40px; margin-top:16px;">
+            Dashboard <span style="color:#2f7dbf;">Profesor</span>
+        </div>
+
+        <div style="margin-top:6px; font-weight:700;">
+            Bună ziua, Gheorghe
+        </div>
+
+        <div class="dash-top">
+            <div class="dash-left">
+                @if (!hasCourses)
+                {
+                    <div class="muted" style="margin-top:14px; max-width:420px;">
+                        Nu aveți cursuri sau laboratoare încă.<br />
+                        Doriți să facem unul acum?
+                    </div>
+                }
+            </div>
+
+            <div class="dash-right">
+                <button id="btnShowAdd" class="btn-primary-soft" type="button">
+                    + Adaugă materie
+                </button>
+            </div>
+        </div>
+
+        <!-- FORM ADD (ascuns, apare când apeși +) -->
+        <div id="addPanel" class="add-panel hidden">
+            <form method="post" action="@Url.Action("AddCourse", "Professor")" class="add-form">
+                <div class="add-grid">
+                    <div>
+                        <label class="lbl">Nume materie</label>
+                        <input class="form-control" name="name" placeholder="Ex: Sisteme de Operare" />
+                    </div>
+
+                    <div>
+                        <label class="lbl">Tip</label>
+                        <select class="form-control" name="type">
+                            <option value="course">Curs</option>
+                            <option value="lab">Laborator</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="add-actions">
+                    <button class="btn-primary-soft" type="submit" style="width:220px;">Salvează</button>
+                    <button id="btnCancelAdd" class="btn-ghost" type="button">Renunță</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- LISTA CU SCROLL -->
+        <div class="courses-wrap">
+            @if (hasCourses)
+            {
+                <div class="courses-scroll">
+                    @foreach (var c in courses)
+                    {
+                        <div class="course-card">
+                            <div class="course-main">
+                                <div class="course-title">@c.Name</div>
+                                <div class="course-sub">
+                                    @(c.IsLab ? "Laborator" : "Curs")
+                                </div>
+                            </div>
+
+                            <div class="course-stat">
+                                <div class="stat-label">Studenți</div>
+                                <div class="stat-val">@c.StudentCount</div>
+                            </div>
+
+                            <div class="course-stat">
+                                <div class="stat-label">% prezență</div>
+                                <div class="stat-val">@c.AttendancePercent%</div>
+                            </div>
+
+                            <div class="course-actions">
+
+                                <a class="icon-btn"
+                                   href="@Url.Action("Course", "Professor", new { id = c.Id })"
+                                   title="View">👁️</a>
+
+                                <a class="icon-btn"
+                                   href="@Url.Action("AddStudents", "Professor", new { courseId = c.Id })"
+                                   title="Adaugă studenți">✏️</a>
+
+
+                                <form method="post" action="@Url.Action("DeleteCourse","Professor")" style="display:inline;">
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <button class="icon-btn danger" type="submit" title="Delete">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="courses-empty">Lista de cursuri va apărea aici</div>
+            }
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const panel = document.getElementById("addPanel");
+    const showBtn = document.getElementById("btnShowAdd");
+    const cancelBtn = document.getElementById("btnCancelAdd");
+
+    showBtn.addEventListener("click", () => panel.classList.toggle("hidden"));
+    cancelBtn.addEventListener("click", () => panel.classList.add("hidden"));
+</script>
