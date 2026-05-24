@@ -117,7 +117,7 @@ namespace SmartAttendance.Controllers
                     student = new Student
                     {
                         Email = email,
-                        PasswordHash = "" // student își va seta parola la register
+                        PasswordHash = "" //pt parola in db 
                     };
                     _context.Students.Add(student);
                     _context.SaveChanges();

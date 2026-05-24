@@ -15,8 +15,6 @@ namespace SmartAttendance.Controllers
             _context = context;
         }
 
-        // ================= LOGIN =================
-
         [HttpGet]
         public IActionResult Login()
         {
@@ -43,8 +41,6 @@ namespace SmartAttendance.Controllers
 
             return RedirectToAction("Index", "Student");
         }
-
-        // ================= REGISTER =================
 
         [HttpGet]
         public IActionResult Register()
@@ -73,14 +69,12 @@ namespace SmartAttendance.Controllers
 
             var student = _context.Students.FirstOrDefault(s => s.Email == email);
 
-            // ❗ EXISTĂ ȘI ARE PAROLĂ → CONT ACTIV
             if (student != null && !string.IsNullOrEmpty(student.PasswordHash))
             {
                 ViewBag.Error = "Există deja un cont activ cu acest email.";
                 return View();
             }
 
-            // ❗ NU EXISTĂ → CREĂM STUDENT
             if (student == null)
             {
                 student = new Student
@@ -92,7 +86,7 @@ namespace SmartAttendance.Controllers
             }
             else
             {
-                // ❗ EXISTĂ (adăugat de profesor), dar fără parolă → ACTIVARE
+             
                 student.PasswordHash = Hash(password);
             }
 
@@ -100,15 +94,11 @@ namespace SmartAttendance.Controllers
             return RedirectToAction("Login");
         }
 
-        // ================= LOGOUT =================
-
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
-
-        // ================= HASH =================
 
         private string Hash(string input)
         {
