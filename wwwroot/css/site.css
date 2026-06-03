@@ -10,9 +10,13 @@
     --blue2: #2a6ea8;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 html,
 body {
-    height: 100%;
+    min-height: 100%;
 }
 
 body {
@@ -23,7 +27,7 @@ body {
 }
 
 .app-shell {
-    min-height: 100%;
+    min-height: 100vh;
     display: grid;
     place-items: center;
     padding: 40px 16px;
@@ -102,7 +106,7 @@ body {
     border: none;
     background: transparent;
     font-weight: 800;
-    color: #2f7dbf;
+    color: var(--blue);
     padding: 10px 14px;
     cursor: pointer;
 }
@@ -112,7 +116,7 @@ body {
     height: 44px;
     border-radius: 12px;
     border: 1px solid rgba(15, 43, 70, 0.1);
-    background: rgba(255,255,255,0.78);
+    background: rgba(255, 255, 255, 0.78);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -134,7 +138,6 @@ body {
             background: #ffecec;
         }
 
-
 .actions-row {
     display: flex;
     gap: 16px;
@@ -153,21 +156,13 @@ body {
     max-width: 280px;
 }
 
-.fade {
-    opacity: 1;
-    transition: opacity 220ms ease;
-}
-
-    .fade.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
-
+.fade,
 .fade-lite {
     opacity: 1;
     transition: opacity 220ms ease;
 }
 
+    .fade.hidden,
     .fade-lite.hidden {
         opacity: 0;
         pointer-events: none;
@@ -234,8 +229,8 @@ body {
     width: min(340px, 100%);
     aspect-ratio: 4 / 3;
     border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.65);
-    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.55);
     box-shadow: 0 14px 28px rgba(0, 60, 120, 0.14);
     position: relative;
     overflow: hidden;
@@ -291,8 +286,8 @@ body {
     margin-top: 18px;
     padding: 18px;
     border-radius: 16px;
-    background: rgba(47,125,191,0.06);
-    border: 1px solid rgba(47,125,191,0.18);
+    background: rgba(47, 125, 191, 0.06);
+    border: 1px solid rgba(47, 125, 191, 0.18);
 }
 
 .add-form {
@@ -349,9 +344,9 @@ body {
     gap: 14px;
     padding: 16px;
     border-radius: 16px;
-    background: rgba(255,255,255,0.55);
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
 }
 
 .course-title {
@@ -389,6 +384,13 @@ body {
     gap: 10px;
 }
 
+.course-back-link {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 800;
+    margin-top: 12px;
+}
+
 .course-view-card {
     width: min(1280px, 95vw);
     min-height: 720px;
@@ -402,13 +404,6 @@ body {
     gap: 24px;
 }
 
-.course-back-link {
-    color: #2f7dbf;
-    text-decoration: none;
-    font-weight: 800;
-    margin-top: 12px;
-}
-
 .course-view-grid {
     margin-top: 28px;
     display: grid;
@@ -419,11 +414,11 @@ body {
 
 .course-info-card,
 .course-students-card {
-    background: rgba(255,255,255,0.68);
+    background: rgba(255, 255, 255, 0.68);
     border-radius: 18px;
     padding: 22px;
     box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
-    border: 1px solid rgba(255,255,255,0.7);
+    border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
     .course-info-card h2,
@@ -442,7 +437,7 @@ body {
 }
 
 .stat-mini-card {
-    background: rgba(255,255,255,0.72);
+    background: rgba(255, 255, 255, 0.72);
     border-radius: 14px;
     padding: 14px;
     border: 1px solid rgba(15, 43, 70, 0.06);
@@ -463,7 +458,7 @@ body {
 
 .attendance-chart-card {
     margin-top: 20px;
-    background: rgba(255,255,255,0.72);
+    background: rgba(255, 255, 255, 0.72);
     border-radius: 16px;
     padding: 16px;
     min-height: 210px;
@@ -508,7 +503,7 @@ body {
     height: 100px;
     width: 18px;
     border-radius: 999px;
-    background: rgba(47,125,191,0.13);
+    background: rgba(47, 125, 191, 0.13);
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -546,8 +541,8 @@ body {
 }
 
     .students-header span {
-        background: rgba(47,125,191,0.12);
-        color: #2f7dbf;
+        background: rgba(47, 125, 191, 0.12);
+        color: var(--blue);
         padding: 6px 12px;
         border-radius: 999px;
         font-weight: 900;
@@ -573,9 +568,9 @@ body {
     min-height: 56px;
     padding: 12px 14px;
     border-radius: 15px;
-    background: rgba(255,255,255,0.78);
+    background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(15, 43, 70, 0.06);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.04);
 }
 
 .student-email {
@@ -593,49 +588,33 @@ body {
     gap: 8px;
 }
 
-.students-scroll::-webkit-scrollbar {
-    width: 10px;
+.students-search-wrap {
+    margin-top: 14px;
+    flex-shrink: 0;
 }
 
-.students-scroll::-webkit-scrollbar-track {
-    background: rgba(15, 43, 70, 0.06);
-    border-radius: 999px;
+.students-search-input {
+    width: 100%;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 43, 70, 0.1);
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--text);
+    padding: 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
 }
 
-.students-scroll::-webkit-scrollbar-thumb {
-    background: rgba(47, 125, 191, 0.35);
-    border-radius: 999px;
-}
-
-    .students-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgba(47, 125, 191, 0.55);
+    .students-search-input::placeholder {
+        color: rgba(15, 43, 70, 0.45);
+        font-weight: 600;
     }
 
-@media (max-width: 900px) {
-    .choice-grid {
-        grid-template-columns: 1fr;
+    .students-search-input:focus {
+        border-color: rgba(47, 125, 191, 0.45);
+        box-shadow: 0 0 0 4px rgba(47, 125, 191, 0.1);
     }
-
-    .choice-right {
-        justify-items: start;
-    }
-
-    .course-view-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .course-view-card {
-        min-height: auto;
-    }
-
-    .course-students-card {
-        height: 440px;
-    }
-
-    .students-scroll {
-        height: 310px;
-    }
-}
 
 .attendance-edit-card {
     width: min(1180px, 94vw);
@@ -660,11 +639,11 @@ body {
 
 .attendance-form-card,
 .attendance-list-card {
-    background: rgba(255,255,255,0.68);
+    background: rgba(255, 255, 255, 0.68);
     border-radius: 18px;
     padding: 22px;
     box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
-    border: 1px solid rgba(255,255,255,0.7);
+    border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
     .attendance-form-card h2,
@@ -697,9 +676,9 @@ body {
     gap: 14px;
     padding: 14px 16px;
     border-radius: 15px;
-    background: rgba(255,255,255,0.78);
+    background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(15, 43, 70, 0.06);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.04);
 }
 
 .attendance-date {
@@ -733,69 +712,6 @@ body {
     text-align: center;
 }
 
-.attendance-records-scroll::-webkit-scrollbar {
-    width: 10px;
-}
-
-.attendance-records-scroll::-webkit-scrollbar-track {
-    background: rgba(15, 43, 70, 0.06);
-    border-radius: 999px;
-}
-
-.attendance-records-scroll::-webkit-scrollbar-thumb {
-    background: rgba(47, 125, 191, 0.35);
-    border-radius: 999px;
-}
-
-    .attendance-records-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgba(47, 125, 191, 0.55);
-    }
-
-@media (max-width: 900px) {
-    .attendance-edit-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .attendance-edit-card {
-        min-height: auto;
-    }
-
-    .attendance-records-scroll {
-        height: 300px;
-    }
-}
-
-.students-search-wrap {
-    margin-top: 14px;
-    flex-shrink: 0;
-}
-
-.students-search-input {
-    width: 100%;
-    height: 42px;
-    border-radius: 14px;
-    border: 1px solid rgba(15, 43, 70, 0.10);
-    background: rgba(255, 255, 255, 0.78);
-    color: var(--text);
-    padding: 0 14px;
-    font-size: 15px;
-    font-weight: 600;
-    outline: none;
-    box-sizing: border-box;
-}
-
-    .students-search-input::placeholder {
-        color: rgba(15, 43, 70, 0.45);
-        font-weight: 600;
-    }
-
-    .students-search-input:focus {
-        border-color: rgba(47, 125, 191, 0.45);
-        box-shadow: 0 0 0 4px rgba(47, 125, 191, 0.10);
-    }
-
-/* ================= STUDENT ATTENDANCE VIEW ================= */
-
 .student-attendance-card {
     width: min(1180px, 94vw);
     min-height: 650px;
@@ -819,11 +735,11 @@ body {
 
 .student-attendance-left,
 .student-attendance-right {
-    background: rgba(255,255,255,0.68);
+    background: rgba(255, 255, 255, 0.68);
     border-radius: 18px;
     padding: 22px;
     box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
-    border: 1px solid rgba(255,255,255,0.7);
+    border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
     .student-attendance-left h2,
@@ -836,7 +752,7 @@ body {
 
 .student-chart-card {
     margin-top: 20px;
-    background: rgba(255,255,255,0.72);
+    background: rgba(255, 255, 255, 0.72);
     border-radius: 16px;
     padding: 16px;
     min-height: 210px;
@@ -865,7 +781,7 @@ body {
     height: 110px;
     width: 18px;
     border-radius: 999px;
-    background: rgba(47,125,191,0.13);
+    background: rgba(47, 125, 191, 0.13);
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -901,18 +817,6 @@ body {
         font-size: 14px;
     }
 
-@media (max-width: 900px) {
-    .student-attendance-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .student-attendance-card {
-        min-height: auto;
-    }
-}
-
-/* ================= CHART SWITCH + EXPORT ================= */
-
 .chart-card-header {
     display: flex;
     align-items: center;
@@ -929,11 +833,11 @@ body {
 
 .chart-toggle,
 .chart-export {
-    border: 1px solid rgba(15, 43, 70, 0.10);
-    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(15, 43, 70, 0.1);
+    background: rgba(255, 255, 255, 0.82);
     color: var(--text);
     border-radius: 10px;
-    height: 34px;
+    min-height: 34px;
     padding: 0 11px;
     font-weight: 750;
     font-size: 13px;
@@ -951,7 +855,7 @@ body {
     }
 
 .chart-export {
-    color: #2f7dbf;
+    color: var(--blue);
 }
 
     .chart-export:hover,
@@ -987,7 +891,7 @@ body {
 
 .line-chart-path {
     fill: none;
-    stroke: #2f7dbf;
+    stroke: var(--blue);
     stroke-width: 4;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -995,7 +899,7 @@ body {
 
 .line-chart-dot {
     fill: white;
-    stroke: #2f7dbf;
+    stroke: var(--blue);
     stroke-width: 3;
 }
 
@@ -1007,4 +911,266 @@ body {
     color: var(--muted);
     font-weight: 800;
     overflow-x: auto;
+}
+
+.student-dashboard-card {
+    width: min(1180px, 94vw);
+    min-height: 620px;
+    padding: 42px 48px;
+}
+
+.student-dashboard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.student-dashboard-body {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 26px;
+    align-items: stretch;
+}
+
+    .student-dashboard-body.single-column {
+        grid-template-columns: 1fr;
+    }
+
+.student-courses-card,
+.student-info-card {
+    background: rgba(255, 255, 255, 0.68);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+    .student-courses-card.wide {
+        width: 100%;
+    }
+
+    .student-courses-card h2,
+    .student-info-card h2 {
+        margin: 0;
+        color: var(--text);
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+.student-courses-list {
+    margin-top: 16px;
+    height: 360px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px;
+}
+
+    .student-courses-list.wide {
+        height: 430px;
+    }
+
+.student-course-row {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 14px;
+    min-height: 62px;
+    padding: 14px 16px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(15, 43, 70, 0.06);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.04);
+    text-decoration: none;
+    color: var(--text);
+}
+
+    .student-course-row:hover {
+        background: rgba(238, 246, 255, 0.96);
+        transform: translateY(-1px);
+    }
+
+    .student-course-row.detailed {
+        grid-template-columns: 1fr 180px auto;
+    }
+
+.student-course-title {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--text);
+}
+
+.student-course-type {
+    margin-top: 3px;
+    color: var(--muted);
+    font-weight: 650;
+    font-size: 14px;
+}
+
+.student-course-arrow {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--blue);
+}
+
+.student-course-attendance {
+    text-align: right;
+}
+
+.student-course-percent {
+    font-size: 22px;
+    font-weight: 850;
+    color: var(--text);
+}
+
+.student-course-sessions {
+    margin-top: 3px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.course-details-card {
+    width: min(1180px, 94vw);
+    min-height: 650px;
+    padding: 42px 48px;
+}
+
+.course-details-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.course-details-grid {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 26px;
+    align-items: start;
+}
+
+.course-details-left,
+.course-details-right {
+    background: rgba(255, 255, 255, 0.68);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+    .course-details-left h2,
+    .course-details-right h2 {
+        margin: 0;
+        color: var(--text);
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+.course-details-right {
+    height: 620px;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-details-records-scroll {
+    margin-top: 16px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px;
+}
+
+    .students-scroll::-webkit-scrollbar,
+    .attendance-records-scroll::-webkit-scrollbar,
+    .student-courses-list::-webkit-scrollbar,
+    .course-details-records-scroll::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .students-scroll::-webkit-scrollbar-track,
+    .attendance-records-scroll::-webkit-scrollbar-track,
+    .student-courses-list::-webkit-scrollbar-track,
+    .course-details-records-scroll::-webkit-scrollbar-track {
+        background: rgba(15, 43, 70, 0.06);
+        border-radius: 999px;
+    }
+
+    .students-scroll::-webkit-scrollbar-thumb,
+    .attendance-records-scroll::-webkit-scrollbar-thumb,
+    .student-courses-list::-webkit-scrollbar-thumb,
+    .course-details-records-scroll::-webkit-scrollbar-thumb {
+        background: rgba(47, 125, 191, 0.35);
+        border-radius: 999px;
+    }
+
+        .students-scroll::-webkit-scrollbar-thumb:hover,
+        .attendance-records-scroll::-webkit-scrollbar-thumb:hover,
+        .student-courses-list::-webkit-scrollbar-thumb:hover,
+        .course-details-records-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(47, 125, 191, 0.55);
+        }
+
+@media (max-width: 900px) {
+    .choice-grid,
+    .course-view-grid,
+    .attendance-edit-grid,
+    .student-attendance-grid,
+    .student-dashboard-body,
+    .course-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .choice-right {
+        justify-items: start;
+    }
+
+    .course-view-card,
+    .attendance-edit-card,
+    .student-attendance-card,
+    .student-dashboard-card,
+    .course-details-card {
+        min-height: auto;
+    }
+
+    .course-students-card {
+        height: 440px;
+    }
+
+    .students-scroll {
+        height: 310px;
+    }
+
+    .attendance-records-scroll {
+        height: 300px;
+    }
+
+    .student-courses-list {
+        height: 300px;
+    }
+
+    .course-details-right {
+        height: 420px;
+    }
+}
+
+@media (max-width: 700px) {
+    .student-course-row.detailed {
+        grid-template-columns: 1fr auto;
+    }
+
+    .student-course-attendance {
+        grid-column: 1 / -1;
+        text-align: left;
+        margin-top: 8px;
+    }
 }

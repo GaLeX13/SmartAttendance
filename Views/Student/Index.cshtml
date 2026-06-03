@@ -1,48 +1,78 @@
-﻿@model SmartAttendance.Models.Student
+﻿@model List<SmartAttendance.ViewModels.StudentCourseSummaryViewModel>
 
 @{
     ViewData["Title"] = "Student Dashboard";
+    string email = ViewBag.Email ?? "student";
 }
 
 <div class="app-shell">
-    <div class="hero-card">
+    <div class="hero-card student-dashboard-card">
 
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="brand">Study Sync</div>
+        <div class="student-dashboard-header">
+            <div>
+                <div class="brand">Study Sync</div>
+
+                <div class="hero-title" style="font-size:34px; margin-top:18px;">
+                    Student Dashboard
+                </div>
+
+                <div class="muted">
+                    Logged in as @email
+                </div>
+            </div>
 
             <a href="@Url.Action("Logout", "StudentAuth")"
-               style="font-weight:700; color:#2f7dbf; text-decoration:none;">
+               class="course-back-link">
                 Logout
             </a>
         </div>
 
-        <div class="hero-title" style="font-size: 34px;">
-            Salut, @Model.Email!
-        </div>
-
-        <div class="hero-subtitle">
-            Cursurile la care ești înscris:
-        </div>
-
-        <div style="margin-top:24px; display:grid; gap:12px;">
-            @if (!Model.CourseStudents.Any())
-            {
-                <div style="color:#888; font-weight:600;">
-                    Nu ești înscris la niciun curs încă.
+        <div class="student-dashboard-body single-column">
+            <div class="student-courses-card wide">
+                <div class="students-header">
+                    <h2>My Courses</h2>
+                    <span>@Model.Count</span>
                 </div>
-            }
-            else
-            {
-                foreach (var cs in Model.CourseStudents)
-                {
-                    <div class="course-card">
-                        <strong>@cs.Course.Name</strong><br />
-                        <span style="color:#666;">
-                            @(cs.Course.IsLab ? "Laborator" : "Curs")
-                        </span>
-                    </div>
-                }
-            }
+
+                <div class="student-courses-list wide">
+                    @if (!Model.Any())
+                    {
+                        <div class="muted attendance-empty">
+                            You are not enrolled in any courses yet.
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <a class="student-course-row detailed"
+                               href="@Url.Action("CourseDetails", "Student", new { id = item.Course.Id })">
+
+                                <div>
+                                    <div class="student-course-title">@item.Course.Name</div>
+                                    <div class="student-course-type">
+                                        @(item.Course.IsLab ? "Laboratory" : "Course")
+                                    </div>
+                                </div>
+
+                                <div class="student-course-attendance">
+                                    <div class="student-course-percent">
+                                        @item.AttendancePercent%
+                                    </div>
+
+                                    <div class="student-course-sessions">
+                                        @item.AttendedSessions / @item.CountedSessions sessions
+                                    </div>
+                                </div>
+
+                                <div class="student-course-arrow">
+                                    →
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
         </div>
 
     </div>
