@@ -7,64 +7,69 @@
 
         <div class="brand">Study Sync</div>
 
-
         <div id="introBlock" class="fade-lite">
-            <div class="hero-title">Bine ați venit la Sistemul de Prezență Smart!</div>
-            <div class="hero-subtitle">
-                Platformă integrată pentru înregistrarea rapidă și sigură a prezenței
-                studenților la cursuri și laboratoare, folosind tehnologie RFID și biometrică.
+            <div class="hero-title">
+                Welcome to Study Sync
             </div>
 
-            <button id="btnStart" class="btn-primary-soft">START</button>
+            <div class="hero-subtitle">
+                A student attendance platform designed for fast course management,
+                attendance tracking, RFID-based identification, and academic reporting.
+            </div>
+
+            <button id="btnStart" class="btn-primary-soft">
+                Start
+            </button>
         </div>
 
         <div id="choiceBlock" class="fade-lite hidden">
-
             <div class="choice-grid">
 
-                <!-- STÂNGA: feature list + butoane -->
                 <div class="choice-left">
-
                     <div class="feature-list">
-                        <div>✔ Prezență automată prin RFID și amprentă</div>
-                        <div>✔ Validare inteligentă pe interval orar</div>
-                        <div>✔ Statistici și rapoarte în timp real</div>
-                        <div>✔ Integrare hardware directă (ESP / Arduino)</div>
+                        <div>✔ RFID-based attendance identification</div>
+                        <div>✔ Course and laboratory attendance management</div>
+                        <div>✔ Student attendance statistics and reports</div>
+                        <div>✔ Hardware integration with ESP32 and RFID modules</div>
                     </div>
 
-                    <div class="choice-header">Alege tipul de conexiune</div>
+                    <div class="choice-header">
+                        Choose your account type
+                    </div>
 
                     <div class="choice-buttons">
-                        <a class="btn-primary-soft" href="@Url.Action("Login", "StudentAuth")">Conexiune Student</a>
-                        <a class="btn-primary-soft" href="@Url.Action("Login", "ProfessorAuth")">Conexiune Profesor</a>
-                    </div>
+                        <a class="btn-primary-soft" href="@Url.Action("Login", "StudentAuth")">
+                            Student Login
+                        </a>
 
+                        <a class="btn-primary-soft" href="@Url.Action("Login", "ProfessorAuth")">
+                            Professor Login
+                        </a>
+                    </div>
                 </div>
 
-                <!-- DREAPTA: slideshow hardware -->
                 <div class="choice-right">
-                    <div class="hw-title">Hardware (prototip)</div>
+                    <div class="hw-title">
+                        Hardware Prototype
+                    </div>
 
                     <div class="hw-slider">
-                        <img class="hw-slide active" src="~/img/hardware/hw1.jpg" alt="Hardware 1" />
-                        <img class="hw-slide" src="~/img/hardware/hw2.jpg" alt="Hardware 2" />
-                        <img class="hw-slide" src="~/img/hardware/hw3.jpg" alt="Hardware 3" />
+                        <img class="hw-slide active" src="~/img/hardware/hw1.jpg" alt="Hardware prototype view 1" />
+                        <img class="hw-slide" src="~/img/hardware/hw2.jpg" alt="Hardware prototype view 2" />
+                        <img class="hw-slide" src="~/img/hardware/hw3.jpg" alt="Hardware prototype view 3" />
                     </div>
 
                     <div class="hw-caption" id="hwCaption">
-                        ESP/Arduino + RFID + amprentă (prototip)
+                        ESP32 prototype with RFID attendance support
                     </div>
                 </div>
 
             </div>
-
         </div>
 
-
-
         <div class="footer-note">
-            Proiect de licență realizat de Gheorghe Alexandru, Student S1B - CEN.<br />
-            Sub îndrumarea Dr. Ing. Eugen Dumitrașcu, Șef de lucrări, Universitatea din Craiova
+            Bachelor's thesis project by Gheorghe D. Alexandru, S1b - CEN.<br />
+            Coordinated by Dr. Ing. Eugen Dumitrașcu, Lecturer, University of Craiova.
         </div>
 
     </div>
@@ -77,33 +82,37 @@
 
     start.addEventListener("click", () => {
         intro.classList.add("hidden");
+
         setTimeout(() => {
             choice.classList.remove("hidden");
         }, 180);
     });
 </script>
+
 <script>
     const slides = Array.from(document.querySelectorAll(".hw-slide"));
     const captions = [
-      "ESP/Arduino + RFID + amprentă (prototip)",
-      "Cititor RFID: autentificare rapidă",
-      "Senzor amprentă: identificare biometrică"
+        "ESP32 prototype with RFID attendance support",
+        "RFID reader used for fast student identification",
+        "Hardware setup prepared for attendance validation"
     ];
+
     const captionEl = document.getElementById("hwCaption");
+    let currentSlide = 0;
 
-    let idx = 0;
+    function showSlide(index) {
+        slides.forEach(slide => slide.classList.remove("active"));
+        slides[index].classList.add("active");
 
-    function showSlide(i) {
-      slides.forEach(s => s.classList.remove("active"));
-      slides[i].classList.add("active");
-      if (captionEl) captionEl.textContent = captions[i] ?? "";
+        if (captionEl) {
+            captionEl.textContent = captions[index] ?? "";
+        }
     }
 
-    // pornește automat, chiar dacă user-ul nu apasă start încă
     showSlide(0);
 
     setInterval(() => {
-      idx = (idx + 1) % slides.length;
-      showSlide(idx);
-    }, 3500); // 3.5 sec per slide
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }, 3500);
 </script>
