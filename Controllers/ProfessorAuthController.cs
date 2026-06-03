@@ -24,27 +24,38 @@ namespace SmartAttendance.Controllers
         [HttpPost]
         public IActionResult Register(string email, string password, string confirmPassword, string accessKey)
         {
+            email = (email ?? "").Trim().ToLower();
+
+            if (string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(confirmPassword) ||
+                string.IsNullOrWhiteSpace(accessKey))
+            {
+                ViewBag.Error = "Please complete all fields.";
+                return View();
+            }
+
             if (accessKey != "UCV")
             {
-                ViewBag.Error = "Cheia de acces este invalidă.";
+                ViewBag.Error = "Invalid access key.";
                 return View();
             }
 
             if (password != confirmPassword)
             {
-                ViewBag.Error = "Parolele nu coincid.";
+                ViewBag.Error = "Passwords do not match.";
                 return View();
             }
 
             if (_context.Professors.Any(p => p.Email == email))
             {
-                ViewBag.Error = "Există deja un cont.";
+                ViewBag.Error = "An account with this email already exists.";
                 return View();
             }
 
             var professor = new Professor
             {
-                Email = email.Trim().ToLower(),
+                Email = email,
                 PasswordHash = Hash(password),
                 FullName = email.Split('@')[0]
             };
@@ -64,31 +75,34 @@ namespace SmartAttendance.Controllers
         [HttpPost]
         public IActionResult Login(string email, string password)
         {
-            email = email.Trim().ToLower();
+            email = (email ?? "").Trim().ToLower();
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Please enter your email and password.";
+                return View();
+            }
 
             var professor = _context.Professors
                 .FirstOrDefault(p => p.Email == email);
 
-            if (professor == null)
+            if (professor == null || professor.PasswordHash != Hash(password))
             {
-                ViewBag.Error = "Email sau parolă greșite";
+                ViewBag.Error = "Invalid email or password.";
                 return View();
             }
 
-            var hashed = Hash(password);
-            if (professor.PasswordHash != hashed)
-            {
-                ViewBag.Error = "Email sau parolă greșite";
-                return View();
-            }
-
-            
             HttpContext.Session.SetInt32("ProfessorId", professor.Id);
             HttpContext.Session.SetString("role", "professor");
 
             return RedirectToAction("Index", "Professor");
         }
 
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
+        }
 
         private string Hash(string input)
         {

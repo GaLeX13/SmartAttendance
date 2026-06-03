@@ -25,14 +25,21 @@ namespace SmartAttendance.Controllers
         public IActionResult Login(string email, string password)
         {
             email = (email ?? "").Trim().ToLower();
-            var hash = Hash(password);
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Please enter your email and password.";
+                return View();
+            }
+
+            var passwordHash = Hash(password);
 
             var student = _context.Students
-                .FirstOrDefault(s => s.Email == email && s.PasswordHash == hash);
+                .FirstOrDefault(s => s.Email == email && s.PasswordHash == passwordHash);
 
             if (student == null)
             {
-                ViewBag.Error = "Email sau parolă greșită.";
+                ViewBag.Error = "Invalid email or password.";
                 return View();
             }
 
@@ -57,21 +64,22 @@ namespace SmartAttendance.Controllers
                 string.IsNullOrWhiteSpace(password) ||
                 string.IsNullOrWhiteSpace(confirmPassword))
             {
-                ViewBag.Error = "Completează toate câmpurile.";
+                ViewBag.Error = "Please complete all fields.";
                 return View();
             }
 
             if (password != confirmPassword)
             {
-                ViewBag.Error = "Parolele nu coincid.";
+                ViewBag.Error = "Passwords do not match.";
                 return View();
             }
 
-            var student = _context.Students.FirstOrDefault(s => s.Email == email);
+            var student = _context.Students
+                .FirstOrDefault(s => s.Email == email);
 
             if (student != null && !string.IsNullOrEmpty(student.PasswordHash))
             {
-                ViewBag.Error = "Există deja un cont activ cu acest email.";
+                ViewBag.Error = "An active account with this email already exists.";
                 return View();
             }
 
@@ -82,15 +90,16 @@ namespace SmartAttendance.Controllers
                     Email = email,
                     PasswordHash = Hash(password)
                 };
+
                 _context.Students.Add(student);
             }
             else
             {
-             
                 student.PasswordHash = Hash(password);
             }
 
             _context.SaveChanges();
+
             return RedirectToAction("Login");
         }
 

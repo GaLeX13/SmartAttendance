@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SmartAttendance.Data;
 using SmartAttendance.Models;
-using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
 using SmartAttendance.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using SmartAttendance.ViewModels;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SmartAttendance.Controllers
 {
@@ -54,37 +55,36 @@ namespace SmartAttendance.Controllers
             int absentCount = records.Count(a => a.Status == "Absent");
             int recoveredCount = records.Count(a => a.Status == "Recovered");
 
-            int totalRequiredRecords = presentCount + absentCount;
+            int countedSessions = presentCount + absentCount;
             int effectiveAbsences = Math.Max(0, absentCount - recoveredCount);
 
-            int attendancePercent = totalRequiredRecords == 0
+            int attendancePercent = countedSessions == 0
                 ? 0
-                : (int)Math.Round(((totalRequiredRecords - effectiveAbsences) * 100.0) / totalRequiredRecords);
-
+                : (int)Math.Round(((countedSessions - effectiveAbsences) * 100.0) / countedSessions);
 
             var chartGroups = records
-    .GroupBy(a => a.Date.Date)
-    .OrderBy(g => g.Key)
-    .Select(g =>
-    {
-        int dayPresent = g.Count(x => x.Status == "Present");
-        int dayAbsent = g.Count(x => x.Status == "Absent");
-        int dayRecovered = g.Count(x => x.Status == "Recovered");
+                .GroupBy(a => a.Date.Date)
+                .OrderBy(g => g.Key)
+                .Select(g =>
+                {
+                    int dayPresent = g.Count(x => x.Status == "Present");
+                    int dayAbsent = g.Count(x => x.Status == "Absent");
+                    int dayRecovered = g.Count(x => x.Status == "Recovered");
 
-        int dayTotalRequired = dayPresent + dayAbsent;
-        int dayEffectiveAbsences = Math.Max(0, dayAbsent - dayRecovered);
+                    int dayCountedSessions = dayPresent + dayAbsent;
+                    int dayEffectiveAbsences = Math.Max(0, dayAbsent - dayRecovered);
 
-        int dayPercent = dayTotalRequired == 0
-            ? 0
-            : (int)Math.Round(((dayTotalRequired - dayEffectiveAbsences) * 100.0) / dayTotalRequired);
+                    int dayPercent = dayCountedSessions == 0
+                        ? 0
+                        : (int)Math.Round(((dayCountedSessions - dayEffectiveAbsences) * 100.0) / dayCountedSessions);
 
-        return new
-        {
-            Label = g.Key.ToString("dd.MM"),
-            Percent = dayPercent
-        };
-    })
-    .ToList();
+                    return new
+                    {
+                        Label = g.Key.ToString("dd.MM"),
+                        Percent = dayPercent
+                    };
+                })
+                .ToList();
 
             ViewBag.PresentCount = presentCount;
             ViewBag.AbsentCount = absentCount;
@@ -182,23 +182,6 @@ namespace SmartAttendance.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditStudents(int courseId)
-        {
-            var course = _context.Courses
-                .Include(c => c.CourseStudents)
-                .ThenInclude(cs => cs.Student)
-                .FirstOrDefault(c => c.Id == courseId);
-
-            if (course == null)
-                return NotFound();
-
-            ViewBag.CourseName = course.Name;
-            ViewBag.CourseId = course.Id;
-
-            return View();
-        }
-
-        [HttpGet]
         public IActionResult EditAttendance(int courseId, int studentId)
         {
             var professorId = HttpContext.Session.GetInt32("ProfessorId");
@@ -287,7 +270,7 @@ namespace SmartAttendance.Controllers
 
             _context.SaveChanges();
 
-            return RedirectToAction("EditAttendance", new { courseId = courseId, studentId = studentId });
+            return RedirectToAction("EditAttendance", new { courseId, studentId });
         }
 
         [HttpPost]
@@ -304,7 +287,10 @@ namespace SmartAttendance.Controllers
                 return RedirectToAction("Index");
 
             var record = _context.AttendanceRecords
-                .FirstOrDefault(a => a.Id == id && a.CourseId == courseId && a.StudentId == studentId);
+                .FirstOrDefault(a =>
+                    a.Id == id &&
+                    a.CourseId == courseId &&
+                    a.StudentId == studentId);
 
             if (record != null)
             {
@@ -312,7 +298,7 @@ namespace SmartAttendance.Controllers
                 _context.SaveChanges();
             }
 
-            return RedirectToAction("EditAttendance", new { courseId = courseId, studentId = studentId });
+            return RedirectToAction("EditAttendance", new { courseId, studentId });
         }
 
         [HttpGet]
@@ -329,6 +315,7 @@ namespace SmartAttendance.Controllers
 
             return View(records);
         }
+
         [HttpGet]
         public IActionResult StudentAttendancePdf(int courseId, int studentId)
         {
@@ -342,118 +329,6 @@ namespace SmartAttendance.Controllers
                 return RedirectToAction("Index");
 
             return View("StudentAttendancePdf", records);
-        }
-
-        private List<AttendanceRecord>? PrepareStudentAttendanceData(int courseId, int studentId, int professorId)
-        {
-            var course = _context.Courses
-                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
-
-            if (course == null)
-                return null;
-
-            var student = _context.Students
-                .FirstOrDefault(s => s.Id == studentId);
-
-            if (student == null)
-                return null;
-
-            var isLinked = _context.CourseStudents
-                .Any(cs => cs.CourseId == courseId && cs.StudentId == studentId);
-
-            if (!isLinked)
-                return null;
-
-            var recordsAscending = _context.AttendanceRecords
-                .Where(a => a.CourseId == courseId && a.StudentId == studentId)
-                .OrderBy(a => a.Date)
-                .ToList();
-
-            var recordsDescending = recordsAscending
-                .OrderByDescending(a => a.Date)
-                .ToList();
-
-            int presentCount = recordsAscending.Count(a => a.Status == "Present");
-            int absentCount = recordsAscending.Count(a => a.Status == "Absent");
-            int recoveredCount = recordsAscending.Count(a => a.Status == "Recovered");
-
-            int totalRequiredRecords = presentCount + absentCount;
-            int effectiveAbsences = Math.Max(0, absentCount - recoveredCount);
-
-            int attendancePercent = totalRequiredRecords == 0
-                ? 0
-                : (int)Math.Round(((totalRequiredRecords - effectiveAbsences) * 100.0) / totalRequiredRecords);
-
-            var barLabels = recordsAscending
-                .Select(a => a.Date.ToString("dd.MM"))
-                .ToList();
-
-            var barValues = recordsAscending
-                .Select(a =>
-                {
-                    if (a.Status == "Present") return 100;
-                    if (a.Status == "Recovered") return 100;
-                    return 0;
-                })
-                .ToList();
-
-            var barStatuses = recordsAscending
-                .Select(a => a.Status)
-                .ToList();
-
-            var lineLabels = new List<string>();
-            var lineValues = new List<int>();
-
-            int runningPresent = 0;
-            int runningAbsent = 0;
-            int runningRecovered = 0;
-
-            foreach (var record in recordsAscending)
-            {
-                if (record.Status == "Present")
-                    runningPresent++;
-
-                if (record.Status == "Absent")
-                    runningAbsent++;
-
-                if (record.Status == "Recovered")
-                    runningRecovered++;
-
-                int runningTotalRequired = runningPresent + runningAbsent;
-                int runningEffectiveAbsences = Math.Max(0, runningAbsent - runningRecovered);
-
-                int runningAttendancePercent = runningTotalRequired == 0
-                    ? 0
-                    : (int)Math.Round(((runningTotalRequired - runningEffectiveAbsences) * 100.0) / runningTotalRequired);
-
-                lineLabels.Add(record.Date.ToString("dd.MM"));
-                lineValues.Add(runningAttendancePercent);
-            }
-
-            ViewBag.CourseId = course.Id;
-            ViewBag.CourseName = course.Name;
-            ViewBag.CourseType = course.IsLab ? "Laboratory" : "Course";
-
-            ViewBag.StudentId = student.Id;
-            ViewBag.StudentEmail = student.Email;
-
-            ViewBag.PresentCount = presentCount;
-            ViewBag.AbsentCount = absentCount;
-            ViewBag.RecoveredCount = recoveredCount;
-            ViewBag.TotalRequiredRecords = totalRequiredRecords;
-            ViewBag.EffectiveAbsences = effectiveAbsences;
-            ViewBag.AttendancePercent = attendancePercent;
-
-            ViewBag.BarChartLabels = barLabels;
-            ViewBag.BarChartValues = barValues;
-            ViewBag.BarChartStatuses = barStatuses;
-
-            ViewBag.LineChartLabels = lineLabels;
-            ViewBag.LineChartValues = lineValues;
-
-            ViewBag.GeneratedAt = DateTime.Now;
-
-            return recordsDescending;
         }
 
         [HttpGet]
@@ -502,65 +377,15 @@ namespace SmartAttendance.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditStudents(int courseId, string studentEmails)
-        {
-            if (string.IsNullOrWhiteSpace(studentEmails))
-                return RedirectToAction("Index");
-
-            var emails = studentEmails
-                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-                .Select(e => e.Trim().ToLower())
-                .Distinct()
-                .ToList();
-
-            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-
-            var course = _context.Courses
-                .Include(c => c.CourseStudents)
-                .FirstOrDefault(c => c.Id == courseId);
-
-            if (course == null)
-                return NotFound();
-
-            foreach (var email in emails)
-            {
-                if (!emailRegex.IsMatch(email))
-                    continue;
-
-                var student = _context.Students.FirstOrDefault(s => s.Email == email);
-
-                if (student == null)
-                {
-                    student = new Student
-                    {
-                        Email = email,
-                        PasswordHash = "" //pt parola in db 
-                    };
-                    _context.Students.Add(student);
-                    _context.SaveChanges();
-                }
-
-                bool alreadyAdded = _context.CourseStudents
-                    .Any(cs => cs.CourseId == courseId && cs.StudentId == student.Id);
-
-                if (!alreadyAdded)
-                {
-                    _context.CourseStudents.Add(new CourseStudent
-                    {
-                        CourseId = courseId,
-                        StudentId = student.Id
-                    });
-                }
-            }
-
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
         public IActionResult DeleteCourse(int id)
         {
-            var course = _context.Courses.FirstOrDefault(c => c.Id == id);
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == id && c.ProfessorId == professorId);
+
             if (course != null)
             {
                 _context.Courses.Remove(course);
@@ -570,36 +395,56 @@ namespace SmartAttendance.Controllers
             return RedirectToAction("Index");
         }
 
-
-
         [HttpGet]
         public IActionResult AddStudents(int courseId)
         {
-            var course = _context.Courses.FirstOrDefault(c => c.Id == courseId);
-            if (course == null) return NotFound();
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
 
-            ViewBag.CourseId = courseId;
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            ViewBag.CourseId = course.Id;
             ViewBag.CourseName = course.Name;
+
             return View();
         }
 
         [HttpPost]
         public IActionResult AddStudents(int courseId, string emails)
         {
-            if (string.IsNullOrWhiteSpace(emails))
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
                 return RedirectToAction("Index");
+
+            if (string.IsNullOrWhiteSpace(emails))
+                return RedirectToAction("Course", new { id = courseId });
 
             var lines = emails
                 .Split('\n')
-                .Select(e => e.Trim().ToLower())
+                .Select(e => e.Trim().ToLowerInvariant())
                 .Where(e => !string.IsNullOrWhiteSpace(e))
-                .Distinct();
+                .Distinct()
+                .ToList();
 
             foreach (var email in lines)
             {
-                if (!IsValidEmail(email)) continue;
+                if (!IsValidEmail(email))
+                    continue;
 
-                var student = _context.Students.FirstOrDefault(s => s.Email == email);
+                var student = _context.Students
+                    .FirstOrDefault(s => s.Email == email);
+
                 if (student == null)
                 {
                     student = new Student
@@ -607,6 +452,7 @@ namespace SmartAttendance.Controllers
                         Email = email,
                         PasswordHash = ""
                     };
+
                     _context.Students.Add(student);
                     _context.SaveChanges();
                 }
@@ -625,7 +471,8 @@ namespace SmartAttendance.Controllers
             }
 
             _context.SaveChanges();
-            return RedirectToAction("Index");
+
+            return RedirectToAction("Course", new { id = courseId });
         }
 
         [HttpPost]
@@ -719,54 +566,128 @@ namespace SmartAttendance.Controllers
             return RedirectToAction("Course", new { id = courseId });
         }
 
-        private bool IsValidEmail(string email)
+        private List<AttendanceRecord>? PrepareStudentAttendanceData(int courseId, int studentId, int professorId)
         {
-            return System.Text.RegularExpressions.Regex.IsMatch(
-                email,
-                @"^[^@\s]+@[^@\s]+\.[^@\s]+$"
-            );
-        }
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
 
-        private string Hash(string input)
-        {
-            using var sha = System.Security.Cryptography.SHA256.Create();
-            return Convert.ToBase64String(
-                sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input))
-            );
-        }
+            if (course == null)
+                return null;
 
-        private bool TryGetWeekRange(string selectedWeek, out DateTime weekStart, out DateTime weekEnd)
-        {
-            weekStart = DateTime.MinValue;
-            weekEnd = DateTime.MinValue;
+            var student = _context.Students
+                .FirstOrDefault(s => s.Id == studentId);
 
-            if (string.IsNullOrWhiteSpace(selectedWeek))
-                return false;
+            if (student == null)
+                return null;
 
-            var parts = selectedWeek.Split("-W");
+            var isLinked = _context.CourseStudents
+                .Any(cs => cs.CourseId == courseId && cs.StudentId == studentId);
 
-            if (parts.Length != 2)
-                return false;
+            if (!isLinked)
+                return null;
 
-            if (!int.TryParse(parts[0], out int year))
-                return false;
+            var recordsAscending = _context.AttendanceRecords
+                .Where(a => a.CourseId == courseId && a.StudentId == studentId)
+                .OrderBy(a => a.Date)
+                .ToList();
 
-            if (!int.TryParse(parts[1], out int week))
-                return false;
+            var recordsDescending = recordsAscending
+                .OrderByDescending(a => a.Date)
+                .ToList();
 
-            try
+            int presentCount = recordsAscending.Count(a => a.Status == "Present");
+            int absentCount = recordsAscending.Count(a => a.Status == "Absent");
+            int recoveredCount = recordsAscending.Count(a => a.Status == "Recovered");
+
+            int countedSessions = presentCount + absentCount;
+            int effectiveAbsences = Math.Max(0, absentCount - recoveredCount);
+
+            int attendancePercent = countedSessions == 0
+                ? 0
+                : (int)Math.Round(((countedSessions - effectiveAbsences) * 100.0) / countedSessions);
+
+            var barLabels = recordsAscending
+                .Select(a => a.Date.ToString("dd.MM"))
+                .ToList();
+
+            var barValues = recordsAscending
+                .Select(a =>
+                {
+                    if (a.Status == "Present")
+                        return 100;
+
+                    if (a.Status == "Recovered")
+                        return 100;
+
+                    return 0;
+                })
+                .ToList();
+
+            var barStatuses = recordsAscending
+                .Select(a => a.Status)
+                .ToList();
+
+            var lineLabels = new List<string>();
+            var lineValues = new List<int>();
+
+            int runningPresent = 0;
+            int runningAbsent = 0;
+            int runningRecovered = 0;
+
+            foreach (var record in recordsAscending)
             {
-                weekStart = ISOWeek.ToDateTime(year, week, DayOfWeek.Monday).Date;
-                weekEnd = weekStart.AddDays(6);
-                return true;
+                if (record.Status == "Present")
+                    runningPresent++;
+
+                if (record.Status == "Absent")
+                    runningAbsent++;
+
+                if (record.Status == "Recovered")
+                    runningRecovered++;
+
+                int runningCountedSessions = runningPresent + runningAbsent;
+                int runningEffectiveAbsences = Math.Max(0, runningAbsent - runningRecovered);
+
+                int runningAttendancePercent = runningCountedSessions == 0
+                    ? 0
+                    : (int)Math.Round(((runningCountedSessions - runningEffectiveAbsences) * 100.0) / runningCountedSessions);
+
+                lineLabels.Add(record.Date.ToString("dd.MM"));
+                lineValues.Add(runningAttendancePercent);
             }
-            catch
-            {
-                return false;
-            }
+
+            ViewBag.CourseId = course.Id;
+            ViewBag.CourseName = course.Name;
+            ViewBag.CourseType = course.IsLab ? "Laboratory" : "Course";
+
+            ViewBag.StudentId = student.Id;
+            ViewBag.StudentEmail = student.Email;
+
+            ViewBag.PresentCount = presentCount;
+            ViewBag.AbsentCount = absentCount;
+            ViewBag.RecoveredCount = recoveredCount;
+            ViewBag.TotalRequiredRecords = countedSessions;
+            ViewBag.EffectiveAbsences = effectiveAbsences;
+            ViewBag.AttendancePercent = attendancePercent;
+
+            ViewBag.BarChartLabels = barLabels;
+            ViewBag.BarChartValues = barValues;
+            ViewBag.BarChartStatuses = barStatuses;
+
+            ViewBag.LineChartLabels = lineLabels;
+            ViewBag.LineChartValues = lineValues;
+
+            ViewBag.GeneratedAt = DateTime.Now;
+
+            return recordsDescending;
         }
 
-        private List<ClassStudentAttendanceSummaryViewModel>? BuildClassReport(int courseId, int professorId, string sort, string filter, int threshold)
+        private List<ClassStudentAttendanceSummaryViewModel>? BuildClassReport(
+            int courseId,
+            int professorId,
+            string sort,
+            string filter,
+            int threshold)
         {
             threshold = Math.Clamp(threshold, 0, 100);
 
@@ -889,5 +810,41 @@ namespace SmartAttendance.Controllers
             return students;
         }
 
+        private bool IsValidEmail(string email)
+        {
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        }
+
+        private bool TryGetWeekRange(string selectedWeek, out DateTime weekStart, out DateTime weekEnd)
+        {
+            weekStart = DateTime.MinValue;
+            weekEnd = DateTime.MinValue;
+
+            if (string.IsNullOrWhiteSpace(selectedWeek))
+                return false;
+
+            var parts = selectedWeek.Split("-W");
+
+            if (parts.Length != 2)
+                return false;
+
+            if (!int.TryParse(parts[0], out int year))
+                return false;
+
+            if (!int.TryParse(parts[1], out int week))
+                return false;
+
+            try
+            {
+                weekStart = ISOWeek.ToDateTime(year, week, DayOfWeek.Monday).Date;
+                weekEnd = weekStart.AddDays(6);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
