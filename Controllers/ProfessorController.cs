@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartAttendance.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using SmartAttendance.ViewModels;
+using System.Globalization;
 
 namespace SmartAttendance.Controllers
 {
@@ -95,6 +96,7 @@ namespace SmartAttendance.Controllers
 
             return View(course);
         }
+
         [HttpPost]
         public IActionResult AddCourse(string name, string type)
         {
@@ -102,19 +104,81 @@ namespace SmartAttendance.Controllers
             if (professorId == null)
                 return RedirectToAction("Login", "ProfessorAuth");
 
+            if (string.IsNullOrWhiteSpace(name))
+                return RedirectToAction("Index");
+
+            var professor = _context.Professors
+                .FirstOrDefault(p => p.Id == professorId.Value);
+
             var course = new Course
             {
                 Name = name.Trim(),
                 IsLab = type == "lab",
                 ProfessorId = professorId.Value,
                 StudentCount = 0,
-                AttendancePercent = 0
+                AttendancePercent = 0,
+                MinimumAttendanceRequired = 50,
+                ProfessorContactEmail = professor?.Email ?? "",
+                AutoFillAbsencesEnabled = false,
+                AutoFillDayOfWeek = 0,
+                AutoFillTime = new TimeSpan(12, 0, 0)
             };
 
             _context.Courses.Add(course);
             _context.SaveChanges();
 
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult CourseSettings(int id)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == id && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            return View(course);
+        }
+
+        [HttpPost]
+        public IActionResult CourseSettings(
+            int id,
+            int minimumAttendanceRequired,
+            string professorContactEmail,
+            string? autoFillAbsencesEnabled,
+            int autoFillDayOfWeek,
+            string autoFillTime)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == id && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            minimumAttendanceRequired = Math.Clamp(minimumAttendanceRequired, 0, 100);
+
+            if (!TimeSpan.TryParse(autoFillTime, out var parsedTime))
+                parsedTime = new TimeSpan(12, 0, 0);
+
+            course.MinimumAttendanceRequired = minimumAttendanceRequired;
+            course.ProfessorContactEmail = (professorContactEmail ?? "").Trim();
+            course.AutoFillAbsencesEnabled = autoFillAbsencesEnabled == "true";
+            course.AutoFillDayOfWeek = autoFillDayOfWeek;
+            course.AutoFillTime = parsedTime;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Course", new { id = course.Id });
         }
 
         [HttpGet]
@@ -565,6 +629,72 @@ namespace SmartAttendance.Controllers
         }
 
         [HttpPost]
+        public IActionResult CompleteMissingAttendance(int id, string selectedWeek)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .Include(c => c.CourseStudents)
+                .FirstOrDefault(c => c.Id == id && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            if (!TryGetWeekRange(selectedWeek, out var weekStart, out var weekEnd))
+            {
+                TempData["SettingsMessage"] = "Invalid week selected.";
+                return RedirectToAction("CourseSettings", new { id = course.Id });
+            }
+
+            bool weekHasAttendanceActivity = _context.AttendanceRecords
+                .Any(a =>
+                    a.CourseId == course.Id &&
+                    a.Date >= weekStart &&
+                    a.Date <= weekEnd &&
+                    a.Status != "Recovered");
+
+            if (!weekHasAttendanceActivity)
+            {
+                TempData["SettingsMessage"] = "No attendance activity was found for the selected week. No absences were added.";
+                return RedirectToAction("CourseSettings", new { id = course.Id });
+            }
+
+            int addedAbsences = 0;
+
+            foreach (var courseStudent in course.CourseStudents)
+            {
+                bool studentHasNormalMark = _context.AttendanceRecords
+                    .Any(a =>
+                        a.CourseId == course.Id &&
+                        a.StudentId == courseStudent.StudentId &&
+                        a.Date >= weekStart &&
+                        a.Date <= weekEnd &&
+                        a.Status != "Recovered");
+
+                if (!studentHasNormalMark)
+                {
+                    _context.AttendanceRecords.Add(new AttendanceRecord
+                    {
+                        CourseId = course.Id,
+                        StudentId = courseStudent.StudentId,
+                        Date = weekEnd,
+                        Status = "Absent"
+                    });
+
+                    addedAbsences++;
+                }
+            }
+
+            _context.SaveChanges();
+
+            TempData["SettingsMessage"] = $"{addedAbsences} missing attendance records were marked as absent.";
+
+            return RedirectToAction("CourseSettings", new { id = course.Id });
+        }
+
+        [HttpPost]
         public IActionResult RemoveStudent(int courseId, int studentId)
         {
             var professorId = HttpContext.Session.GetInt32("ProfessorId");
@@ -603,6 +733,37 @@ namespace SmartAttendance.Controllers
             return Convert.ToBase64String(
                 sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input))
             );
+        }
+
+        private bool TryGetWeekRange(string selectedWeek, out DateTime weekStart, out DateTime weekEnd)
+        {
+            weekStart = DateTime.MinValue;
+            weekEnd = DateTime.MinValue;
+
+            if (string.IsNullOrWhiteSpace(selectedWeek))
+                return false;
+
+            var parts = selectedWeek.Split("-W");
+
+            if (parts.Length != 2)
+                return false;
+
+            if (!int.TryParse(parts[0], out int year))
+                return false;
+
+            if (!int.TryParse(parts[1], out int week))
+                return false;
+
+            try
+            {
+                weekStart = ISOWeek.ToDateTime(year, week, DayOfWeek.Monday).Date;
+                weekEnd = weekStart.AddDays(6);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private List<ClassStudentAttendanceSummaryViewModel>? BuildClassReport(int courseId, int professorId, string sort, string filter, int threshold)

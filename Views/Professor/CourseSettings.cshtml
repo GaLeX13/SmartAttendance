@@ -1,0 +1,198 @@
+﻿@using System.Globalization
+@model SmartAttendance.Models.Course
+
+@{
+    ViewData["Title"] = "Course Settings";
+
+    var days = new[]
+    {
+        new { Value = 0, Text = "Sunday" },
+        new { Value = 1, Text = "Monday" },
+        new { Value = 2, Text = "Tuesday" },
+        new { Value = 3, Text = "Wednesday" },
+        new { Value = 4, Text = "Thursday" },
+        new { Value = 5, Text = "Friday" },
+        new { Value = 6, Text = "Saturday" }
+    };
+
+    int weekYear = ISOWeek.GetYear(DateTime.Today);
+    int weekNumber = ISOWeek.GetWeekOfYear(DateTime.Today);
+    string currentWeek = $"{weekYear}-W{weekNumber:00}";
+}
+
+<div class="app-shell">
+    <div class="hero-card settings-card">
+
+        <div class="settings-header">
+            <div>
+                <div class="brand">Study Sync</div>
+
+                <div class="hero-title" style="font-size:34px; margin-top:16px;">
+                    Course Settings
+                </div>
+
+                <div class="muted">
+                    @Model.Name — @(Model.IsLab ? "Laboratory" : "Course")
+                </div>
+            </div>
+
+            <a href="@Url.Action("Course", "Professor", new { id = Model.Id })"
+               class="course-back-link">
+                ← Back to Course
+            </a>
+            @if (TempData["SettingsMessage"] != null)
+            {
+                <div class="settings-message">
+                    @TempData["SettingsMessage"]
+                </div>
+            }
+        </div>
+
+        <form method="post" action="@Url.Action("CourseSettings", "Professor")">
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div class="settings-section">
+                <h2>Attendance Rules</h2>
+
+                <div class="settings-rule-grid">
+                    <div class="settings-field">
+                        <label class="lbl">Minimum Attendance Required (%)</label>
+                        <input class="form-control"
+                               type="number"
+                               name="minimumAttendanceRequired"
+                               min="0"
+                               max="100"
+                               value="@Model.MinimumAttendanceRequired" />
+                    </div>
+
+                    <div class="settings-field">
+                        <label class="lbl">Professor Contact Email</label>
+                        <input class="form-control"
+                               type="email"
+                               name="professorContactEmail"
+                               value="@Model.ProfessorContactEmail"
+                               placeholder="professor@example.com" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title-row">
+                    <h2>Absence Completion</h2>
+
+                    <span class="settings-helper">
+                        Complete missing attendance marks manually or automatically.
+                    </span>
+                </div>
+
+                <div class="completion-panels">
+                    <div class="completion-panel">
+                        <div class="completion-panel-header">
+                            <h3>Manual</h3>
+
+                            <span class="help-bubble">
+                                ?
+                                <span class="help-content">
+                                    On the selected day and time, the system checks the current week from Monday to Sunday.
+                                    If at least one attendance mark exists for that week, students without a mark are automatically marked as absent.
+                                    Recovered records are ignored for this check.
+                                </span>
+                            </span>
+                        </div>
+
+                        <div class="settings-field">
+                            <label class="lbl">Select Week</label>
+                            <input class="form-control"
+                                   type="week"
+                                   name="selectedWeek"
+                                   value="@currentWeek" />
+                        </div>
+
+                        <div class="completion-description">
+                            Use this after attendance taking is finished and you want to complete a specific week manually.
+                        </div>
+
+                        <button class="btn-primary-soft completion-button"
+                                type="submit"
+                                formaction="@Url.Action("CompleteMissingAttendance", "Professor")"
+                                formmethod="post">
+                            Apply
+                        </button>
+                    </div>
+
+                    <div class="completion-panel">
+                        <div class="completion-panel-header">
+                            <h3>Automatic</h3>
+
+                            <span class="help-bubble">
+                                ?
+                                <span class="help-content">
+                                    This option can automatically mark missing students as absent at the selected day and time.
+                                </span>
+                            </span>
+                        </div>
+
+                        <label class="automatic-toggle">
+                            @if (Model.AutoFillAbsencesEnabled)
+                            {
+                                <input type="checkbox"
+                                       name="autoFillAbsencesEnabled"
+                                       value="true"
+                                       checked />
+                            }
+                            else
+                            {
+                                <input type="checkbox"
+                                       name="autoFillAbsencesEnabled"
+                                       value="true" />
+                            }
+
+                            <span>Enable automatic absence completion</span>
+                        </label>
+
+                        <div class="automatic-grid">
+                            <div>
+                                <div class="settings-field">
+                                    <label class="lbl">Completion Day</label>
+                                    <select class="form-control" name="autoFillDayOfWeek">
+                                        @foreach (var day in days)
+                                        {
+                                            if (Model.AutoFillDayOfWeek == day.Value)
+                                            {
+                                                <option value="@day.Value" selected>@day.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@day.Value">@day.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="settings-field">
+                                    <label class="lbl">Completion Time</label>
+                                    <input class="form-control"
+                                           type="time"
+                                           name="autoFillTime"
+                                           value="@Model.AutoFillTime.ToString("hh\\:mm")" />
+                                </div>
+                            </div>
+
+                            <div class="completion-description highlight">
+                                The system only completes absences for weeks where attendance activity already exists.
+                                This prevents empty weeks or cancelled classes from being automatically marked as absences.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-save-row">
+                <button class="btn-primary-soft" type="submit">
+                    Save Settings
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>

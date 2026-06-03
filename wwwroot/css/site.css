@@ -1174,17 +1174,24 @@ body {
         margin-top: 8px;
     }
 }
-
 .course-header-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 18px;
+    flex-shrink: 0;
 }
 
+.course-settings-btn,
 .class-report-btn {
-    min-width: 140px;
+    min-width: 150px;
     padding: 10px 16px;
     font-size: 14px;
+}
+
+.course-view-grid {
+    width: 100%;
+    clear: both;
 }
 
 .class-report-card {
@@ -1217,7 +1224,14 @@ body {
 
 .class-report-filter-actions {
     display: flex;
+    gap: 12px;
     align-items: end;
+    flex-wrap: wrap;
+}
+
+.class-report-export {
+    min-width: 190px;
+    padding: 12px 18px;
 }
 
 .class-report-table-card {
@@ -1285,60 +1299,241 @@ body {
         background: rgba(47, 125, 191, 0.55);
     }
 
-@media (max-width: 900px) {
+.settings-card {
+    width: min(1320px, 94vw);
+    min-height: 680px;
+    padding: 42px 48px;
+}
+
+.settings-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.settings-section {
+    margin-top: 28px;
+    background: rgba(255, 255, 255, 0.64);
+    border: 1px solid rgba(15, 43, 70, 0.06);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 10px 24px rgba(0, 60, 120, 0.07);
+}
+
+    .settings-section h2 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 750;
+        color: var(--text);
+    }
+
+.settings-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.settings-helper {
+    color: var(--muted);
+    font-weight: 650;
+    font-size: 14px;
+}
+
+.settings-rule-grid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 18px;
+    align-items: end;
+}
+
+.settings-field {
+    display: grid;
+    gap: 7px;
+}
+
+.form-control {
+    width: 100%;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 43, 70, 0.1);
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--text);
+    padding: 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+}
+
+    .form-control:focus {
+        border-color: rgba(47, 125, 191, 0.45);
+        box-shadow: 0 0 0 4px rgba(47, 125, 191, 0.1);
+    }
+
+.completion-panels {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.25fr;
+    gap: 18px;
+    align-items: stretch;
+}
+
+.completion-panel {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(15, 43, 70, 0.08);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 8px 18px rgba(0, 60, 120, 0.06);
+}
+
+.completion-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.completion-panel h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 760;
+    color: var(--text);
+}
+
+.help-bubble {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: rgba(47, 125, 191, 0.14);
+    color: var(--blue);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    cursor: help;
+    flex-shrink: 0;
+}
+
+.help-content {
+    position: absolute;
+    top: 34px;
+    right: 0;
+    width: 280px;
+    background: #ffffff;
+    color: var(--text);
+    border: 1px solid rgba(15, 43, 70, 0.08);
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 14px 28px rgba(0, 60, 120, 0.16);
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 120ms ease, transform 120ms ease;
+    z-index: 30;
+}
+
+.help-bubble:hover .help-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.completion-description {
+    margin-top: 12px;
+    color: var(--muted);
+    font-weight: 650;
+    line-height: 1.55;
+}
+
+    .completion-description.highlight {
+        margin-top: 0;
+        background: rgba(47, 125, 191, 0.06);
+        border: 1px solid rgba(47, 125, 191, 0.12);
+        border-radius: 14px;
+        padding: 14px;
+        color: var(--text);
+        align-self: stretch;
+    }
+
+.completion-button {
+    width: 180px;
+    margin-top: 16px;
+}
+
+.automatic-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    color: var(--text);
+    font-weight: 750;
+}
+
+    .automatic-toggle input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--blue);
+    }
+
+.automatic-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 18px;
+    align-items: stretch;
+}
+
+.settings-save-row {
+    margin-top: 22px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-message {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(47, 125, 191, 0.1);
+    border: 1px solid rgba(47, 125, 191, 0.18);
+    color: var(--text);
+    font-weight: 700;
+}
+
+@media (max-width: 1000px) {
+    .settings-rule-grid,
+    .completion-panels,
+    .automatic-grid,
     .class-report-summary,
     .class-report-filters {
         grid-template-columns: 1fr;
     }
 
+    .settings-header,
+    .settings-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .settings-card,
     .class-report-card {
         min-height: auto;
+    }
+
+    .settings-save-row {
+        justify-content: flex-start;
     }
 
     .class-report-table-scroll {
         height: 320px;
     }
 
-
-    .course-header {
-        width: 100%;
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-    }
-
-    .fixed-course-header > div:first-child {
-        min-width: 0;
-        flex: 1;
-    }
-
     .course-header-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 18px;
-        flex-shrink: 0;
+        flex-direction: column;
+        align-items: flex-end;
     }
-
-    .class-report-btn {
-        min-width: 140px;
-        padding: 10px 16px;
-        font-size: 14px;
-    }
-
-    .course-view-grid {
-        width: 100%;
-        clear: both;
-    }
-
-    .class-report-filter-actions {
-        display: flex;
-        gap: 12px;
-        align-items: end;
-        flex-wrap: wrap;
-    }
-
-    .class-report-export {
-        min-width: 190px;
-        padding: 12px 18px;
-    }
+}
