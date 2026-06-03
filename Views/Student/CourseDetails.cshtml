@@ -16,6 +16,32 @@
     int effectiveAbsences = ViewBag.EffectiveAbsences ?? 0;
     int attendancePercent = ViewBag.AttendancePercent ?? 0;
 
+    int minimumAttendanceRequired = ViewBag.MinimumAttendanceRequired ?? 0;
+    string professorContactEmail = ViewBag.ProfessorContactEmail ?? "";
+    bool autoFillAbsencesEnabled = ViewBag.AutoFillAbsencesEnabled ?? false;
+    int autoFillDayOfWeek = ViewBag.AutoFillDayOfWeek ?? 0;
+    TimeSpan autoFillTime = ViewBag.AutoFillTime ?? new TimeSpan(12, 0, 0);
+    string eligibilityStatus = ViewBag.EligibilityStatus ?? "Not evaluated yet";
+
+    var dayNames = new[]
+    {
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    };
+
+    string autoFillDayName = dayNames[Math.Clamp(autoFillDayOfWeek, 0, 6)];
+
+    string eligibilityClass = eligibilityStatus == "Eligible"
+        ? "eligible"
+        : eligibilityStatus == "Not eligible"
+            ? "not-eligible"
+            : "pending";
+
     var barLabels = ViewBag.BarChartLabels as List<string> ?? new List<string>();
     var barValues = ViewBag.BarChartValues as List<int> ?? new List<int>();
     var barStatuses = ViewBag.BarChartStatuses as List<string> ?? new List<string>();
@@ -100,6 +126,51 @@
                         <div class="stat-mini-label">Effective Absences</div>
                         <div class="stat-mini-value">@effectiveAbsences</div>
                     </div>
+                </div>
+
+                <div class="course-rules-card">
+                    <div class="course-rules-header">
+                        <div class="chart-title">Course Rules</div>
+
+                        <span class="eligibility-pill @eligibilityClass">
+                            @eligibilityStatus
+                        </span>
+                    </div>
+
+                    <div class="course-rules-grid">
+                        <div>
+                            <div class="rule-label">Minimum required</div>
+                            <div class="rule-value">@minimumAttendanceRequired%</div>
+                        </div>
+
+                        <div>
+                            <div class="rule-label">Current attendance</div>
+                            <div class="rule-value">@attendancePercent%</div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(professorContactEmail))
+                    {
+                        <div class="rule-contact">
+                            <span>Professor contact:</span>
+                            <a href="mailto:@professorContactEmail">@professorContactEmail</a>
+                        </div>
+                    }
+
+                    @if (autoFillAbsencesEnabled)
+                    {
+                        <div class="rule-note">
+                            Automatic absence completion is scheduled for @autoFillDayName at @autoFillTime.ToString("hh\\:mm").
+                            If attendance is recorded during a week, students without a mark may be automatically marked as absent.
+                            Recovered records do not start this process.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rule-note">
+                            Automatic absence completion is currently disabled for this course.
+                        </div>
+                    }
                 </div>
 
                 <div class="student-chart-card">
@@ -238,6 +309,10 @@
 
     chartButtons.forEach(button => {
         button.addEventListener("click", () => {
+            if (!barsChart || !lineChart) {
+                return;
+            }
+
             chartButtons.forEach(btn => btn.classList.remove("active"));
             button.classList.add("active");
 

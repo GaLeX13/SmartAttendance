@@ -167,6 +167,12 @@ namespace SmartAttendance.Controllers
             ViewBag.CourseType = course.IsLab ? "Laboratory" : "Course";
 
             ViewBag.StudentEmail = student.Email;
+            
+            ViewBag.MinimumAttendanceRequired = course.MinimumAttendanceRequired;
+            ViewBag.ProfessorContactEmail = course.ProfessorContactEmail;
+            ViewBag.AutoFillAbsencesEnabled = course.AutoFillAbsencesEnabled;
+            ViewBag.AutoFillDayOfWeek = course.AutoFillDayOfWeek;
+            ViewBag.AutoFillTime = course.AutoFillTime;
 
             ViewBag.PresentCount = presentCount;
             ViewBag.AbsentCount = absentCount;
@@ -230,9 +236,26 @@ namespace SmartAttendance.Controllers
                 ? 0
                 : (int)Math.Round(((countedSessions - effectiveAbsences) * 100.0) / countedSessions);
 
+            string eligibilityStatus;
+
+            if (countedSessions == 0)
+            {
+                eligibilityStatus = "Not evaluated yet";
+            }
+            else if (attendancePercent >= course.MinimumAttendanceRequired)
+            {
+                eligibilityStatus = "Eligible";
+            }
+            else
+            {
+                eligibilityStatus = "Not eligible";
+            }
+
             ViewBag.CourseName = course.Name;
             ViewBag.CourseType = course.IsLab ? "Laboratory" : "Course";
             ViewBag.StudentEmail = student.Email;
+
+            ViewBag.EligibilityStatus = eligibilityStatus;
 
             ViewBag.PresentCount = presentCount;
             ViewBag.AbsentCount = absentCount;
