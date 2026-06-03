@@ -1,7 +1,7 @@
 ﻿@model List<SmartAttendance.Models.Course>
 
 @{
-    ViewData["Title"] = "Dashboard Profesor";
+    ViewData["Title"] = "Professor Dashboard";
     var courses = Model ?? new List<SmartAttendance.Models.Course>();
     var hasCourses = courses.Count > 0;
 }
@@ -12,11 +12,11 @@
         <div class="brand">Study Sync</div>
 
         <div class="hero-title" style="font-size:40px; margin-top:16px;">
-            Dashboard <span style="color:#2f7dbf;">Profesor</span>
+            Professor <span style="color:#2f7dbf;">Dashboard</span>
         </div>
 
         <div style="margin-top:6px; font-weight:700;">
-            Bună ziua, Gheorghe
+            Welcome, Professor
         </div>
 
         <div class="dash-top">
@@ -24,45 +24,43 @@
                 @if (!hasCourses)
                 {
                     <div class="muted" style="margin-top:14px; max-width:420px;">
-                        Nu aveți cursuri sau laboratoare încă.<br />
-                        Doriți să facem unul acum?
+                        You do not have any courses or laboratories yet.<br />
+                        Create one to get started.
                     </div>
                 }
             </div>
 
             <div class="dash-right">
                 <button id="btnShowAdd" class="btn-primary-soft" type="button">
-                    + Adaugă materie
+                    + Add Course
                 </button>
             </div>
         </div>
 
-        <!-- FORM ADD (ascuns, apare când apeși +) -->
         <div id="addPanel" class="add-panel hidden">
             <form method="post" action="@Url.Action("AddCourse", "Professor")" class="add-form">
                 <div class="add-grid">
                     <div>
-                        <label class="lbl">Nume materie</label>
-                        <input class="form-control" name="name" placeholder="Ex: Sisteme de Operare" />
+                        <label class="lbl">Course Name</label>
+                        <input class="form-control" name="name" placeholder="Example: Operating Systems" />
                     </div>
 
                     <div>
-                        <label class="lbl">Tip</label>
+                        <label class="lbl">Type</label>
                         <select class="form-control" name="type">
-                            <option value="course">Curs</option>
-                            <option value="lab">Laborator</option>
+                            <option value="course">Course</option>
+                            <option value="lab">Laboratory</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="add-actions">
-                    <button class="btn-primary-soft" type="submit" style="width:220px;">Salvează</button>
-                    <button id="btnCancelAdd" class="btn-ghost" type="button">Renunță</button>
+                    <button class="btn-primary-soft" type="submit" style="width:220px;">Save</button>
+                    <button id="btnCancelAdd" class="btn-ghost" type="button">Cancel</button>
                 </div>
             </form>
         </div>
 
-        <!-- LISTA CU SCROLL -->
         <div class="courses-wrap">
             @if (hasCourses)
             {
@@ -73,34 +71,37 @@
                             <div class="course-main">
                                 <div class="course-title">@c.Name</div>
                                 <div class="course-sub">
-                                    @(c.IsLab ? "Laborator" : "Curs")
+                                    @(c.IsLab ? "Laboratory" : "Course")
                                 </div>
                             </div>
 
                             <div class="course-stat">
-                                <div class="stat-label">Studenți</div>
+                                <div class="stat-label">Students</div>
                                 <div class="stat-val">@c.StudentCount</div>
                             </div>
 
                             <div class="course-stat">
-                                <div class="stat-label">% prezență</div>
+                                <div class="stat-label">Attendance</div>
                                 <div class="stat-val">@c.AttendancePercent%</div>
                             </div>
 
                             <div class="course-actions">
-
                                 <a class="icon-btn"
                                    href="@Url.Action("Course", "Professor", new { id = c.Id })"
-                                   title="View">👁️</a>
+                                   title="View Course">👁️</a>
 
                                 <a class="icon-btn"
                                    href="@Url.Action("AddStudents", "Professor", new { courseId = c.Id })"
-                                   title="Adaugă studenți">✏️</a>
+                                   title="Add Students">✏️</a>
 
-
-                                <form method="post" action="@Url.Action("DeleteCourse","Professor")" style="display:inline;">
+                                <form method="post" action="@Url.Action("DeleteCourse", "Professor")" style="display:inline;">
                                     <input type="hidden" name="id" value="@c.Id" />
-                                    <button class="icon-btn danger" type="submit" title="Delete">🗑️</button>
+                                    <button class="icon-btn danger"
+                                            type="submit"
+                                            title="Delete Course"
+                                            onclick="return confirm('Delete this course?');">
+                                        🗑️
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -109,7 +110,7 @@
             }
             else
             {
-                <div class="courses-empty">Lista de cursuri va apărea aici</div>
+                <div class="courses-empty">Your courses will appear here.</div>
             }
         </div>
 

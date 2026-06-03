@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Creare cont Profesor";
+    ViewData["Title"] = "Professor Registration";
 }
 
 <div class="app-shell">
@@ -8,23 +8,23 @@
         <div class="brand">Study Sync</div>
 
         <div class="hero-title" style="font-size: 34px; margin-top: 18px;">
-            Creare cont <span style="color:#2f7dbf;">Profesor</span>
+            Create <span style="color:#2f7dbf;">Professor Account</span>
         </div>
 
         <form method="post" style="max-width:520px; margin-top:18px;">
             <div style="display:grid; gap:12px;">
 
-                <label>Adresă de email</label>
+                <label>Email Address</label>
                 <input name="email" class="form-control" />
 
-                <label>Parolă</label>
+                <label>Password</label>
                 <input name="password" type="password" class="form-control" />
 
-                <label>Confirmă parola</label>
+                <label>Confirm Password</label>
                 <input name="confirmPassword" type="password" class="form-control" />
 
-                <label>Cheie de acces</label>
-                <input name="accessKey" class="form-control" placeholder="Necesară la înregistrare" />
+                <label>Access Key</label>
+                <input name="accessKey" class="form-control" placeholder="Required for registration" />
 
                 @if (ViewBag.Error != null)
                 {
@@ -32,19 +32,19 @@
                 }
 
                 <button class="btn-primary-soft" style="width:220px;">
-                    Creează cont
+                    Create Account
                 </button>
 
                 <a href="@Url.Action("Login", "ProfessorAuth")"
                    style="font-weight:700; color:#2f7dbf; text-decoration:none;">
-                    Ai deja cont? Autentificare
+                    Already have an account? Login
                 </a>
             </div>
         </form>
 
         <div class="footer-note">
-            Proiect de licență realizat de Gheorghe D. Alexandru, Student S1B - CEN.<br />
-            Sub îndrumarea Dr. Ing. Eugen Dumitrașcu, Șef de lucrări, Universitatea din Craiova
+            Bachelor's thesis project by Gheorghe D. Alexandru, S1b - CEN.<br />
+            Coordinated by Dr. Ing. Eugen Dumitrașcu, Lecturer, University of Craiova.
         </div>
 
     </div>

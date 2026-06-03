@@ -1,12 +1,12 @@
 ﻿@model List<SmartAttendance.Models.AttendanceRecord>
 
 @{
-    ViewData["Title"] = "Editare prezență";
+    ViewData["Title"] = "Edit Attendance";
 
     int courseId = ViewBag.CourseId;
     int studentId = ViewBag.StudentId;
-    string courseName = ViewBag.CourseName;
-    string studentEmail = ViewBag.StudentEmail;
+    string courseName = ViewBag.CourseName ?? "";
+    string studentEmail = ViewBag.StudentEmail ?? "";
 }
 
 <div class="app-shell">
@@ -17,7 +17,7 @@
                 <div class="brand">Study Sync</div>
 
                 <div class="hero-title" style="font-size:32px; margin-top:16px;">
-                    Editare prezență
+                    Edit Attendance
                 </div>
 
                 <div class="muted">
@@ -27,21 +27,21 @@
 
             <a href="@Url.Action("Course", "Professor", new { id = courseId })"
                class="course-back-link">
-                ← Înapoi la curs
+                ← Back to Course
             </a>
         </div>
 
         <div class="attendance-edit-grid">
 
             <div class="attendance-form-card">
-                <h2>Adaugă / modifică prezență</h2>
+                <h2>Add or Update Attendance</h2>
 
                 <form method="post" action="@Url.Action("SaveAttendance", "Professor")">
                     <input type="hidden" name="courseId" value="@courseId" />
                     <input type="hidden" name="studentId" value="@studentId" />
 
                     <div class="attendance-form-row">
-                        <label class="lbl">Data</label>
+                        <label class="lbl">Date</label>
                         <input class="form-control"
                                type="date"
                                name="date"
@@ -51,26 +51,26 @@
                     <div class="attendance-form-row">
                         <label class="lbl">Status</label>
                         <select class="form-control" name="status">
-                            <option value="Present">Prezent</option>
+                            <option value="Present">Present</option>
                             <option value="Absent">Absent</option>
-                            <option value="Recovered">Recuperat</option>
+                            <option value="Recovered">Recovered</option>
                         </select>
                     </div>
 
                     <button class="btn-primary-soft" type="submit" style="margin-top:16px;">
-                        Salvează prezența
+                        Save Attendance
                     </button>
                 </form>
             </div>
 
             <div class="attendance-list-card">
-                <h2>Istoric prezențe</h2>
+                <h2>Attendance History</h2>
 
                 <div class="attendance-records-scroll">
                     @if (!Model.Any())
                     {
                         <div class="muted attendance-empty">
-                            Nu există prezențe înregistrate pentru acest student.
+                            No attendance records were found for this student.
                         </div>
                     }
                     else
@@ -83,19 +83,8 @@
                                         @record.Date.ToString("dd.MM.yyyy")
                                     </div>
 
-                                    <div class="attendance-status @record.Status.ToLower()">
-                                        @if (record.Status == "Present")
-                                        {
-                                            <span>Prezent</span>
-                                        }
-                                        else if (record.Status == "Recovered")
-                                        {
-                                            <span>Recuperat</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Absent</span>
-                                        }
+                                    <div class="attendance-status @record.Status.ToLowerInvariant()">
+                                        @record.Status
                                     </div>
                                 </div>
 
@@ -107,7 +96,8 @@
 
                                     <button class="icon-btn danger"
                                             type="submit"
-                                            onclick="return confirm('Ștergi această înregistrare?');">
+                                            title="Delete Record"
+                                            onclick="return confirm('Delete this attendance record?');">
                                         🗑️
                                     </button>
                                 </form>

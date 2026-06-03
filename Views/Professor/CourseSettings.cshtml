@@ -36,16 +36,19 @@
                 </div>
             </div>
 
-            <a href="@Url.Action("Course", "Professor", new { id = Model.Id })"
-               class="course-back-link">
-                ← Back to Course
-            </a>
-            @if (TempData["SettingsMessage"] != null)
-            {
-                <div class="settings-message">
-                    @TempData["SettingsMessage"]
-                </div>
-            }
+            <div>
+                <a href="@Url.Action("Course", "Professor", new { id = Model.Id })"
+                   class="course-back-link">
+                    ← Back to Course
+                </a>
+
+                @if (TempData["SettingsMessage"] != null)
+                {
+                    <div class="settings-message">
+                        @TempData["SettingsMessage"]
+                    </div>
+                }
+            </div>
         </div>
 
         <form method="post" action="@Url.Action("CourseSettings", "Professor")">
@@ -93,9 +96,9 @@
                             <span class="help-bubble">
                                 ?
                                 <span class="help-content">
-                                    On the selected day and time, the system checks the current week from Monday to Sunday.
-                                    If at least one attendance mark exists for that week, students without a mark are automatically marked as absent.
-                                    Recovered records are ignored for this check.
+                                    This action checks the selected week from Monday to Sunday.
+                                    If at least one normal attendance mark already exists, students without a mark for that week are marked as absent.
+                                    Recovered records are ignored.
                                 </span>
                             </span>
                         </div>
@@ -109,7 +112,7 @@
                         </div>
 
                         <div class="completion-description">
-                            Use this after attendance taking is finished and you want to complete a specific week manually.
+                            Use this after the attendance window for a specific week has ended.
                         </div>
 
                         <button class="btn-primary-soft completion-button"
@@ -127,7 +130,9 @@
                             <span class="help-bubble">
                                 ?
                                 <span class="help-content">
-                                    This option can automatically mark missing students as absent at the selected day and time.
+                                    On the selected day and time, the system checks the current week from Monday to Sunday.
+                                    If at least one normal attendance mark exists, students without a mark are automatically marked as absent.
+                                    Recovered records do not start this process.
                                 </span>
                             </span>
                         </div>

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Adaugă studenți";
+    ViewData["Title"] = "Add Students";
 }
 
 <div class="app-shell">
@@ -8,31 +8,31 @@
         <div class="brand">Study Sync</div>
 
         <div class="hero-title">
-            Adaugă studenți – @ViewBag.CourseName
+            Add Students – @ViewBag.CourseName
         </div>
 
         <form method="post">
             <input type="hidden" name="courseId" value="@ViewBag.CourseId" />
 
             <label class="lbl">
-                Email-uri studenți (un email pe linie)
+                Student Emails
             </label>
 
             <textarea name="emails"
                       class="form-control"
                       rows="8"
-                      placeholder="ex:
+                      placeholder="One email per line:
 student1@ucv.ro
 student2@ucv.ro"></textarea>
 
             <div class="add-actions">
                 <button type="submit" class="btn-primary-soft">
-                    Salvează
+                    Save
                 </button>
 
-                <a href="@Url.Action("Index", "Professor")"
+                <a href="@Url.Action("Course", "Professor", new { id = ViewBag.CourseId })"
                    class="btn-ghost">
-                    Înapoi
+                    Back
                 </a>
             </div>
         </form>
