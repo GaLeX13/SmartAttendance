@@ -11,8 +11,8 @@ using SmartAttendance.Data;
 namespace SmartAttendance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260113001352_AddCourseStudentRelation")]
-    partial class AddCourseStudentRelation
+    [Migration("20260603002222_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -108,7 +108,6 @@ namespace SmartAttendance.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

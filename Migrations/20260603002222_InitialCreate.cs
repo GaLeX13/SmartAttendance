@@ -32,7 +32,7 @@ namespace SmartAttendance.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -66,18 +66,22 @@ namespace SmartAttendance.Migrations
                 name: "CourseStudents",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     CourseId = table.Column<int>(type: "int", nullable: false),
-                    StudentEmail = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    StudentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CourseStudents", x => x.Id);
+                    table.PrimaryKey("PK_CourseStudents", x => new { x.CourseId, x.StudentId });
                     table.ForeignKey(
                         name: "FK_CourseStudents_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CourseStudents_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -88,9 +92,9 @@ namespace SmartAttendance.Migrations
                 column: "ProfessorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CourseStudents_CourseId",
+                name: "IX_CourseStudents_StudentId",
                 table: "CourseStudents",
-                column: "CourseId");
+                column: "StudentId");
         }
 
         /// <inheritdoc />
@@ -100,10 +104,10 @@ namespace SmartAttendance.Migrations
                 name: "CourseStudents");
 
             migrationBuilder.DropTable(
-                name: "Students");
+                name: "Courses");
 
             migrationBuilder.DropTable(
-                name: "Courses");
+                name: "Students");
 
             migrationBuilder.DropTable(
                 name: "Professors");
