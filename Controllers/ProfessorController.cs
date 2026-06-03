@@ -3,6 +3,9 @@ using SmartAttendance.Data;
 using SmartAttendance.Models;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using SmartAttendance.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using SmartAttendance.ViewModels;
 
 namespace SmartAttendance.Controllers
 {
@@ -389,6 +392,51 @@ namespace SmartAttendance.Controllers
             return recordsDescending;
         }
 
+        [HttpGet]
+        public IActionResult ClassReport(int courseId, string sort = "alphabetical", string filter = "all", int threshold = 50)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var students = BuildClassReport(courseId, professorId.Value, sort, filter, threshold);
+
+            if (students == null)
+                return RedirectToAction("Index");
+
+            return View(students);
+        }
+
+        [HttpGet]
+        public IActionResult ClassReportPdf(int courseId, string sort = "alphabetical", string filter = "all", int threshold = 50)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var students = BuildClassReport(courseId, professorId.Value, sort, filter, threshold);
+
+            if (students == null)
+                return RedirectToAction("Index");
+
+            return View("ClassReportPdf", students);
+        }
+
+        [HttpGet]
+        public IActionResult ClassExamSheetPdf(int courseId, string sort = "alphabetical", string filter = "all", int threshold = 50)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var students = BuildClassReport(courseId, professorId.Value, sort, filter, threshold);
+
+            if (students == null)
+                return RedirectToAction("Index");
+
+            return View("ClassExamSheetPdf", students);
+        }
+
         [HttpPost]
         public IActionResult EditStudents(int courseId, string studentEmails)
         {
@@ -555,6 +603,129 @@ namespace SmartAttendance.Controllers
             return Convert.ToBase64String(
                 sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input))
             );
+        }
+
+        private List<ClassStudentAttendanceSummaryViewModel>? BuildClassReport(int courseId, int professorId, string sort, string filter, int threshold)
+        {
+            threshold = Math.Clamp(threshold, 0, 100);
+
+            var professor = _context.Professors
+                .FirstOrDefault(p => p.Id == professorId);
+
+            var course = _context.Courses
+                .Include(c => c.CourseStudents)
+                    .ThenInclude(cs => cs.Student)
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
+                return null;
+
+            var students = new List<ClassStudentAttendanceSummaryViewModel>();
+
+            foreach (var courseStudent in course.CourseStudents)
+            {
+                var student = courseStudent.Student;
+
+                var records = _context.AttendanceRecords
+                    .Where(a => a.CourseId == course.Id && a.StudentId == student.Id)
+                    .ToList();
+
+                int presentCount = records.Count(a => a.Status == "Present");
+                int absentCount = records.Count(a => a.Status == "Absent");
+                int recoveredCount = records.Count(a => a.Status == "Recovered");
+
+                int countedSessions = presentCount + absentCount;
+                int effectiveAbsences = Math.Max(0, absentCount - recoveredCount);
+                int attendedSessions = countedSessions - effectiveAbsences;
+
+                int attendancePercent = countedSessions == 0
+                    ? 0
+                    : (int)Math.Round((attendedSessions * 100.0) / countedSessions);
+
+                students.Add(new ClassStudentAttendanceSummaryViewModel
+                {
+                    CourseId = course.Id,
+                    StudentId = student.Id,
+                    StudentEmail = student.Email,
+                    PresentCount = presentCount,
+                    AbsentCount = absentCount,
+                    RecoveredCount = recoveredCount,
+                    CountedSessions = countedSessions,
+                    EffectiveAbsences = effectiveAbsences,
+                    AttendedSessions = attendedSessions,
+                    AttendancePercent = attendancePercent
+                });
+            }
+
+            if (filter == "above")
+            {
+                students = students
+                    .Where(s => s.AttendancePercent >= threshold)
+                    .ToList();
+            }
+
+            if (filter == "below")
+            {
+                students = students
+                    .Where(s => s.AttendancePercent <= threshold)
+                    .ToList();
+            }
+
+            if (sort == "attendanceAsc")
+            {
+                students = students
+                    .OrderBy(s => s.AttendancePercent)
+                    .ThenBy(s => s.StudentEmail)
+                    .ToList();
+            }
+            else if (sort == "attendanceDesc")
+            {
+                students = students
+                    .OrderByDescending(s => s.AttendancePercent)
+                    .ThenBy(s => s.StudentEmail)
+                    .ToList();
+            }
+            else
+            {
+                students = students
+                    .OrderBy(s => s.StudentEmail)
+                    .ToList();
+            }
+
+            int classAverage = students.Count == 0
+                ? 0
+                : (int)Math.Round(students.Average(s => s.AttendancePercent));
+
+            string sortLabel = sort switch
+            {
+                "attendanceAsc" => "Attendance ascending",
+                "attendanceDesc" => "Attendance descending",
+                _ => "Alphabetical"
+            };
+
+            string filterLabel = filter switch
+            {
+                "above" => $"Attendance at least {threshold}%",
+                "below" => $"Attendance at most {threshold}%",
+                _ => "All students"
+            };
+
+            ViewBag.CourseId = course.Id;
+            ViewBag.CourseName = course.Name;
+            ViewBag.CourseType = course.IsLab ? "Laboratory" : "Course";
+            ViewBag.ProfessorName = professor?.FullName ?? "";
+            ViewBag.TotalStudents = course.CourseStudents.Count;
+            ViewBag.DisplayedStudents = students.Count;
+            ViewBag.ClassAverage = classAverage;
+
+            ViewBag.Sort = sort;
+            ViewBag.Filter = filter;
+            ViewBag.Threshold = threshold;
+            ViewBag.SortLabel = sortLabel;
+            ViewBag.FilterLabel = filterLabel;
+            ViewBag.GeneratedAt = DateTime.Now;
+
+            return students;
         }
 
     }

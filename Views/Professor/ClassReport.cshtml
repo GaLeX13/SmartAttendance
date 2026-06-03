@@ -1,0 +1,201 @@
+﻿@model List<SmartAttendance.ViewModels.ClassStudentAttendanceSummaryViewModel>
+
+@{
+    ViewData["Title"] = "Class Report";
+
+    int courseId = ViewBag.CourseId;
+    string courseName = ViewBag.CourseName ?? "";
+    string courseType = ViewBag.CourseType ?? "";
+
+    int totalStudents = ViewBag.TotalStudents ?? 0;
+    int displayedStudents = ViewBag.DisplayedStudents ?? 0;
+    int classAverage = ViewBag.ClassAverage ?? 0;
+
+    string currentSort = ViewBag.Sort ?? "alphabetical";
+    string currentFilter = ViewBag.Filter ?? "all";
+    int threshold = ViewBag.Threshold ?? 50;
+}
+
+<div class="app-shell">
+    <div class="hero-card class-report-card">
+
+        <div class="class-report-header">
+            <div>
+                <div class="brand">Study Sync</div>
+
+                <div class="hero-title" style="font-size:34px; margin-top:16px;">
+                    Class Report
+                </div>
+
+                <div class="muted">
+                    @courseName — @courseType
+                </div>
+            </div>
+
+            <a href="@Url.Action("Course", "Professor", new { id = courseId })"
+               class="course-back-link">
+                ← Back to Course
+            </a>
+        </div>
+
+        <div class="class-report-summary">
+            <div class="stat-mini-card">
+                <div class="stat-mini-label">Total Students</div>
+                <div class="stat-mini-value">@totalStudents</div>
+            </div>
+
+            <div class="stat-mini-card">
+                <div class="stat-mini-label">Displayed Students</div>
+                <div class="stat-mini-value">@displayedStudents</div>
+            </div>
+
+            <div class="stat-mini-card">
+                <div class="stat-mini-label">Class Average</div>
+                <div class="stat-mini-value">@classAverage%</div>
+            </div>
+        </div>
+
+        <form method="get" action="@Url.Action("ClassReport", "Professor")" class="class-report-filters">
+            <input type="hidden" name="courseId" value="@courseId" />
+
+            <div>
+                <label class="lbl">Sort by</label>
+                <select class="form-control" name="sort">
+                    @if (currentSort == "alphabetical")
+                    {
+                        <option value="alphabetical" selected>Alphabetical</option>
+                    }
+                    else
+                    {
+                        <option value="alphabetical">Alphabetical</option>
+                    }
+
+                    @if (currentSort == "attendanceAsc")
+                    {
+                        <option value="attendanceAsc" selected>Attendance ascending</option>
+                    }
+                    else
+                    {
+                        <option value="attendanceAsc">Attendance ascending</option>
+                    }
+
+                    @if (currentSort == "attendanceDesc")
+                    {
+                        <option value="attendanceDesc" selected>Attendance descending</option>
+                    }
+                    else
+                    {
+                        <option value="attendanceDesc">Attendance descending</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="lbl">Filter</label>
+                <select class="form-control" name="filter">
+                    @if (currentFilter == "all")
+                    {
+                        <option value="all" selected>All students</option>
+                    }
+                    else
+                    {
+                        <option value="all">All students</option>
+                    }
+
+                    @if (currentFilter == "above")
+                    {
+                        <option value="above" selected>Attendance at least N%</option>
+                    }
+                    else
+                    {
+                        <option value="above">Attendance at least N%</option>
+                    }
+
+                    @if (currentFilter == "below")
+                    {
+                        <option value="below" selected>Attendance at most N%</option>
+                    }
+                    else
+                    {
+                        <option value="below">Attendance at most N%</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="lbl">N value</label>
+                <input class="form-control" type="number" name="threshold" value="@threshold" min="0" max="100" />
+            </div>
+
+            <div class="class-report-filter-actions">
+                <button class="btn-primary-soft" type="submit">
+                    Apply
+                </button>
+
+                <button class="btn-primary-soft class-report-export"
+                        type="submit"
+                        formaction="@Url.Action("ClassReportPdf", "Professor")"
+                        formtarget="_blank">
+                    Export Detailed Report
+                </button>
+
+                <button class="btn-primary-soft class-report-export"
+                        type="submit"
+                        formaction="@Url.Action("ClassExamSheetPdf", "Professor")"
+                        formtarget="_blank">
+                    Export Exam Sheet
+                </button>
+            </div>
+        </form>
+
+        <div class="class-report-table-card">
+            <div class="class-report-table-scroll">
+                @if (!Model.Any())
+                {
+                    <div class="muted attendance-empty">
+                        No students match the selected filters.
+                    </div>
+                }
+                else
+                {
+                    <table class="class-report-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Attendance</th>
+                                <th>Sessions</th>
+                                <th>Present</th>
+                                <th>Absences</th>
+                                <th>Recoveries</th>
+                                <th>Effective Absences</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var student in Model)
+                            {
+                                <tr>
+                                    <td>@student.StudentEmail</td>
+                                    <td>@student.AttendancePercent%</td>
+                                    <td>@student.AttendedSessions / @student.CountedSessions</td>
+                                    <td>@student.PresentCount</td>
+                                    <td>@student.AbsentCount</td>
+                                    <td>@student.RecoveredCount</td>
+                                    <td>@student.EffectiveAbsences</td>
+                                    <td>
+                                        <a class="icon-btn"
+                                           href="@Url.Action("StudentAttendance", "Professor", new { courseId = courseId, studentId = student.StudentId })">
+                                            👁️
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>

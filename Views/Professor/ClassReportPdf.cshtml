@@ -1,0 +1,205 @@
+﻿@model List<SmartAttendance.ViewModels.ClassStudentAttendanceSummaryViewModel>
+
+@{
+    Layout = null;
+
+    string courseName = ViewBag.CourseName ?? "";
+    string courseType = ViewBag.CourseType ?? "";
+    string professorName = ViewBag.ProfessorName ?? "";
+    string sortLabel = ViewBag.SortLabel ?? "";
+    string filterLabel = ViewBag.FilterLabel ?? "";
+
+    DateTime generatedAt = ViewBag.GeneratedAt ?? DateTime.Now;
+
+    int totalStudents = ViewBag.TotalStudents ?? 0;
+    int displayedStudents = ViewBag.DisplayedStudents ?? 0;
+    int classAverage = ViewBag.ClassAverage ?? 0;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Class Attendance Report</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #0f2b46;
+            margin: 40px;
+        }
+
+        .report-header {
+            border-bottom: 2px solid #2f7dbf;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .meta {
+            margin-top: 12px;
+            color: #51677c;
+            line-height: 1.6;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .summary-card {
+            border: 1px solid #d9e5f0;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .summary-label {
+            color: #51677c;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .summary-value {
+            margin-top: 6px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+
+        th,
+        td {
+            border: 1px solid #d9e5f0;
+            padding: 9px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #eef6ff;
+        }
+
+        .strong {
+            font-weight: 700;
+        }
+
+        .footer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #6b7f91;
+        }
+
+        @@media print {
+            body {
+                margin: 24px;
+            }
+
+            table {
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="report-header">
+        <div class="brand">Study Sync</div>
+        <h1>Class Attendance Report</h1>
+
+        <div class="meta">
+            <div><strong>Course:</strong> @courseName</div>
+            <div><strong>Type:</strong> @courseType</div>
+            <div><strong>Professor:</strong> @professorName</div>
+            <div><strong>Sort:</strong> @sortLabel</div>
+            <div><strong>Filter:</strong> @filterLabel</div>
+            <div><strong>Generated at:</strong> @generatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+        </div>
+    </div>
+
+    <div class="summary">
+        <div class="summary-card">
+            <div class="summary-label">Total Students</div>
+            <div class="summary-value">@totalStudents</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Displayed Students</div>
+            <div class="summary-value">@displayedStudents</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Class Average</div>
+            <div class="summary-value">@classAverage%</div>
+        </div>
+    </div>
+
+    <h2>Students</h2>
+
+    @if (!Model.Any())
+    {
+        <p>No students match the selected filters.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Attendance</th>
+                    <th>Sessions</th>
+                    <th>Present</th>
+                    <th>Absences</th>
+                    <th>Recoveries</th>
+                    <th>Effective Absences</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var student in Model)
+                {
+                    <tr>
+                        <td class="strong">@student.StudentEmail</td>
+                        <td>@student.AttendancePercent%</td>
+                        <td>@student.AttendedSessions / @student.CountedSessions</td>
+                        <td>@student.PresentCount</td>
+                        <td>@student.AbsentCount</td>
+                        <td>@student.RecoveredCount</td>
+                        <td>@student.EffectiveAbsences</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="footer">
+        This report was generated by Study Sync for academic attendance tracking.
+    </div>
+
+    <script>
+        window.onload = function () {
+            window.print();
+        };
+    </script>
+</body>
+</html>

@@ -15,7 +15,7 @@
 <div class="app-shell">
     <div class="hero-card course-view-card">
 
-        <div class="course-view-header">
+        <div class="course-view-header course-header">
             <div>
                 <div class="brand">Study Sync</div>
 
@@ -24,16 +24,22 @@
                 </div>
 
                 <div class="muted">
-                    @(Model.IsLab ? "Laborator" : "Curs")
+                    @(Model.IsLab ? "Laboratory" : "Course")
                 </div>
             </div>
 
-            <a href="@Url.Action("Index", "Professor")"
-               class="course-back-link">
-                ← Înapoi la dashboard
-            </a>
-        </div>
+            <div class="course-header-actions">
+                <a href="@Url.Action("ClassReport", "Professor", new { courseId = Model.Id })"
+                   class="btn-primary-soft class-report-btn">
+                    Class Report
+                </a>
 
+                <a href="@Url.Action("Index", "Professor")"
+                   class="course-back-link">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
         <div class="course-view-grid">
 
             <div class="course-info-card">
