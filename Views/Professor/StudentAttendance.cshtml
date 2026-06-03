@@ -1,0 +1,246 @@
+﻿@model List<SmartAttendance.Models.AttendanceRecord>
+
+@{
+    ViewData["Title"] = "Student Attendance";
+
+    int courseId = (int)ViewBag.CourseId;
+    int studentId = (int)ViewBag.StudentId;
+
+    string courseName = ViewBag.CourseName ?? "";
+    string studentEmail = ViewBag.StudentEmail ?? "";
+
+    int presentCount = ViewBag.PresentCount ?? 0;
+    int absentCount = ViewBag.AbsentCount ?? 0;
+    int recoveredCount = ViewBag.RecoveredCount ?? 0;
+    int attendancePercent = ViewBag.AttendancePercent ?? 0;
+
+    var barLabels = ViewBag.BarChartLabels as List<string> ?? new List<string>();
+    var barValues = ViewBag.BarChartValues as List<int> ?? new List<int>();
+    var barStatuses = ViewBag.BarChartStatuses as List<string> ?? new List<string>();
+
+    var lineLabels = ViewBag.LineChartLabels as List<string> ?? new List<string>();
+    var lineValues = ViewBag.LineChartValues as List<int> ?? new List<int>();
+
+    var linePoints = new List<string>();
+
+    for (int i = 0; i < lineValues.Count; i++)
+    {
+        int x = lineValues.Count == 1
+            ? 160
+            : 20 + (i * 280 / (lineValues.Count - 1));
+
+        int y = 120 - lineValues[i];
+
+        linePoints.Add($"{x},{y}");
+    }
+
+    string linePointsText = string.Join(" ", linePoints);
+}
+
+<div class="app-shell">
+    <div class="hero-card student-attendance-card">
+
+        <div class="student-attendance-header">
+            <div>
+                <div class="brand">Study Sync</div>
+
+                <div class="hero-title" style="font-size:32px; margin-top:16px;">
+                    Student Attendance
+                </div>
+
+                <div class="muted">
+                    @courseName — @studentEmail
+                </div>
+            </div>
+
+            <a href="@Url.Action("Course", "Professor", new { id = courseId })"
+               class="course-back-link">
+                ← Back to Course
+            </a>
+        </div>
+
+        <div class="student-attendance-grid">
+
+            <div class="student-attendance-left">
+                <h2>Overview</h2>
+
+                <div class="stat-box-grid">
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Attendance</div>
+                        <div class="stat-mini-value">@attendancePercent%</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Present</div>
+                        <div class="stat-mini-value">@presentCount</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Absences</div>
+                        <div class="stat-mini-value">@absentCount</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Recoveries</div>
+                        <div class="stat-mini-value">@recoveredCount</div>
+                    </div>
+                </div>
+
+                <div class="student-chart-card">
+                    <div class="chart-card-header">
+                        <div class="chart-title">Attendance Timeline</div>
+
+                        <div class="chart-actions">
+                            <button class="chart-toggle active" type="button" data-chart="bars">
+                                Bars
+                            </button>
+
+                            <button class="chart-toggle" type="button" data-chart="line">
+                                Line
+                            </button>
+
+                            <a class="chart-export"
+                               href="@Url.Action("StudentAttendancePdf", "Professor", new { courseId = courseId, studentId = studentId })"
+                               target="_blank">
+                                Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (!barLabels.Any())
+                    {
+                        <div class="chart-empty">
+                            No attendance records yet.
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="barsChart" class="chart-panel">
+                            <div class="student-attendance-chart">
+                                @for (int i = 0; i < barLabels.Count; i++)
+                                {
+                                    var value = barValues[i];
+                                    var status = barStatuses[i].ToLower();
+                                    var barHeight = Math.Max(value, 8);
+
+                                    <div class="student-chart-column">
+                                        <div class="student-chart-bar-wrap">
+                                            <div class="student-chart-bar @status"
+                                                 style="height:@barHeight%;"></div>
+                                        </div>
+
+                                        <div class="chart-label">@barLabels[i]</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div id="lineChart" class="chart-panel hidden-chart">
+                            <div class="line-chart-box">
+                                <svg viewBox="0 0 320 140" class="line-chart-svg">
+                                    <line x1="20" y1="120" x2="300" y2="120" class="line-axis" />
+                                    <line x1="20" y1="20" x2="20" y2="120" class="line-axis" />
+
+                                    <polyline points="@linePointsText" class="line-chart-path" />
+
+                                    @for (int i = 0; i < lineValues.Count; i++)
+                                    {
+                                        int x = lineValues.Count == 1
+                                        ? 160
+                                        : 20 + (i * 280 / (lineValues.Count - 1));
+
+                                        int y = 120 - lineValues[i];
+
+                                        <circle cx="@x" cy="@y" r="4" class="line-chart-dot" />
+                                    }
+                                </svg>
+
+                                <div class="line-chart-labels">
+                                    @foreach (var label in lineLabels)
+                                    {
+                                        <span>@label</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="student-attendance-right">
+                <div class="attendance-list-header">
+                    <h2>Records</h2>
+
+                    <a class="btn-primary-soft"
+                       href="@Url.Action("EditAttendance", "Professor", new { courseId = courseId, studentId = studentId })">
+                        Edit Attendance
+                    </a>
+                </div>
+
+                <div class="attendance-records-scroll">
+                    @if (!Model.Any())
+                    {
+                        <div class="muted attendance-empty">
+                            No attendance records found for this student.
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var record in Model)
+                        {
+                            <div class="attendance-record-row">
+                                <div>
+                                    <div class="attendance-date">
+                                        @record.Date.ToString("dd.MM.yyyy")
+                                    </div>
+
+                                    <div class="attendance-status @record.Status.ToLower()">
+                                        @if (record.Status == "Present")
+                                        {
+                                            <span>Present</span>
+                                        }
+                                        else if (record.Status == "Recovered")
+                                        {
+                                            <span>Recovered</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Absent</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const chartButtons = document.querySelectorAll(".chart-toggle");
+    const barsChart = document.getElementById("barsChart");
+    const lineChart = document.getElementById("lineChart");
+
+    chartButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            chartButtons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+
+            const selectedChart = button.dataset.chart;
+
+            if (selectedChart === "bars") {
+                barsChart.classList.remove("hidden-chart");
+                lineChart.classList.add("hidden-chart");
+            }
+
+            if (selectedChart === "line") {
+                lineChart.classList.remove("hidden-chart");
+                barsChart.classList.add("hidden-chart");
+            }
+        });
+    });
+</script>

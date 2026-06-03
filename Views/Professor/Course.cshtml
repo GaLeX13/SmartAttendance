@@ -1,65 +1,183 @@
 ﻿@model SmartAttendance.Models.Course
 
+@{
+    ViewData["Title"] = Model.Name;
+
+    var chartLabels = ViewBag.ChartLabels as List<string> ?? new List<string>();
+    var chartValues = ViewBag.ChartValues as List<int> ?? new List<int>();
+
+    int presentCount = ViewBag.PresentCount ?? 0;
+    int absentCount = ViewBag.AbsentCount ?? 0;
+    int recoveredCount = ViewBag.RecoveredCount ?? 0;
+    int attendancePercent = ViewBag.AttendancePercent ?? 0;
+}
+
 <div class="app-shell">
-    <div class="hero-card">
+    <div class="hero-card course-view-card">
 
-        <div class="hero-title" style="font-size:32px;">
-            @Model.Name
-        </div>
+        <div class="course-view-header">
+            <div>
+                <div class="brand">Study Sync</div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:24px; margin-top:24px;">
-
-            <!-- STÂNGA: STATISTICI -->
-            <div class="card-soft">
-                <h3>Statistici</h3>
-
-                <div style="margin-top:12px;">
-                    <b>Studenți:</b> @Model.CourseStudents.Count
+                <div class="hero-title" style="font-size:34px; margin-top:16px;">
+                    @Model.Name
                 </div>
 
-                <div style="margin-top:6px;">
-                    <b>Prezență medie:</b> @Model.AttendancePercent%
-                </div>
-
-                <div style="margin-top:12px; color:var(--muted);">
-                    (urmează grafice)
+                <div class="muted">
+                    @(Model.IsLab ? "Laborator" : "Curs")
                 </div>
             </div>
 
-            <!-- DREAPTA: STUDENȚI -->
-            <div class="card-soft">
-                <h3>Studenți înscriși</h3>
+            <a href="@Url.Action("Index", "Professor")"
+               class="course-back-link">
+                ← Înapoi la dashboard
+            </a>
+        </div>
+
+        <div class="course-view-grid">
+
+            <div class="course-info-card">
+                <h2>Statistici</h2>
+
+                <div class="stat-box-grid">
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Studenți</div>
+                        <div class="stat-mini-value">@Model.CourseStudents.Count</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Prezență medie</div>
+                        <div class="stat-mini-value">@attendancePercent%</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Prezente</div>
+                        <div class="stat-mini-value">@presentCount</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Absențe</div>
+                        <div class="stat-mini-value">@absentCount</div>
+                    </div>
+
+                    <div class="stat-mini-card">
+                        <div class="stat-mini-label">Recuperări</div>
+                        <div class="stat-mini-value">@recoveredCount</div>
+                    </div>
+                </div>
+
+                <div class="attendance-chart-card">
+                    <div class="chart-title">Evoluție prezență pe ședințe</div>
+
+                    @if (!chartLabels.Any())
+                    {
+                        <div class="chart-empty">
+                            Graficul va apărea după ce se înregistrează prezențe.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="attendance-chart">
+                            @for (int i = 0; i < chartLabels.Count; i++)
+                            {
+                                var value = chartValues[i];
+                                var barHeight = Math.Max(value, 4);
+
+                                <div class="chart-column">
+                                    <div class="chart-bar-wrap">
+                                        <div class="chart-bar" style="height:@barHeight%;"></div>
+                                    </div>
+                                    <div class="chart-label">@chartLabels[i]</div>
+                                    <div class="chart-percent">@value%</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="course-students-card">
+                <div class="students-header">
+                    <h2>Studenți înscriși</h2>
+                    <span>@Model.CourseStudents.Count</span>
+                </div>
+
+                <div class="students-search-wrap">
+                    <input id="studentSearch"
+                           class="students-search-input"
+                           type="text"
+                           placeholder="Caută student după email..." />
+                </div>
 
                 <div class="students-scroll">
-                    @foreach (var cs in Model.CourseStudents)
+                    @if (!Model.CourseStudents.Any())
                     {
-                        <div class="student-row">
-                            <div class="student-email">
-                                @cs.Student.Email
-                            </div>
+                        <div class="muted">Nu există studenți înscriși.</div>
+                    }
+                    else
+                    {
+                        @foreach (var cs in Model.CourseStudents)
+                        {
+                            <div class="student-row" data-student-email="@cs.Student.Email.ToLower()">
+                                <div class="student-email">
+                                    @cs.Student.Email
+                                </div>
 
-                            <div class="student-actions">
-                                <a class="icon-btn" title="View">👁️</a>
-                                <a class="icon-btn" title="Edit">✏️</a>
-                                <form method="post"
-                                      action="@Url.Action("RemoveStudent", "Professor")"
-                                      style="display:inline;">
-                                    <input type="hidden" name="courseId" value="@Model.Id" />
-                                    <input type="hidden" name="studentId" value="@cs.StudentId" />
-                                    <button class="icon-btn danger" type="submit">🗑️</button>
-                                </form>
+                                <div class="student-actions">
+                                    <a class="icon-btn"
+                                       href="@Url.Action("StudentAttendance", "Professor", new { courseId = Model.Id, studentId = cs.StudentId })"
+                                       title="View student attendance">
+                                        👁️
+                                    </a>
+
+                                    <a class="icon-btn"
+                                       href="@Url.Action("EditAttendance", "Professor", new { courseId = Model.Id, studentId = cs.StudentId })"
+                                       title="Edit prezență">
+                                        ✏️
+                                    </a>
+
+                                    <form method="post"
+                                          action="@Url.Action("RemoveStudent", "Professor")"
+                                          style="display:inline;">
+                                        <input type="hidden" name="courseId" value="@Model.Id" />
+                                        <input type="hidden" name="studentId" value="@cs.StudentId" />
+
+                                        <button class="icon-btn danger"
+                                                type="submit"
+                                                title="Remove student"
+                                                onclick="return confirm('Scoți acest student din curs?');">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
+                        }
                     }
                 </div>
             </div>
 
         </div>
 
-        <a href="@Url.Action("Index", "Professor")"
-           style="display:inline-block; margin-top:18px;">
-            ← Înapoi la dashboard
-        </a>
-
     </div>
 </div>
+
+<script>
+    const studentSearch = document.getElementById("studentSearch");
+    const studentRows = document.querySelectorAll(".student-row");
+
+    if (studentSearch) {
+        studentSearch.addEventListener("input", function () {
+            const value = this.value.trim().toLowerCase();
+
+            studentRows.forEach(row => {
+                const email = row.dataset.studentEmail || "";
+
+                if (email.includes(value)) {
+                    row.style.display = "grid";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+    }
+</script>

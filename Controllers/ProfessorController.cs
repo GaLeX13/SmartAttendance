@@ -30,21 +30,68 @@ namespace SmartAttendance.Controllers
 
         public IActionResult Course(int id)
         {
-            var role = HttpContext.Session.GetString("role");
-            if (role != "professor")
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
                 return RedirectToAction("Login", "ProfessorAuth");
 
             var course = _context.Courses
                 .Include(c => c.CourseStudents)
                     .ThenInclude(cs => cs.Student)
-                .FirstOrDefault(c => c.Id == id);
+                .FirstOrDefault(c => c.Id == id && c.ProfessorId == professorId);
 
             if (course == null)
                 return RedirectToAction("Index");
 
+            var records = _context.AttendanceRecords
+                .Where(a => a.CourseId == id)
+                .ToList();
+
+            int presentCount = records.Count(a => a.Status == "Present");
+            int absentCount = records.Count(a => a.Status == "Absent");
+            int recoveredCount = records.Count(a => a.Status == "Recovered");
+
+            int totalRequiredRecords = presentCount + absentCount;
+            int effectiveAbsences = Math.Max(0, absentCount - recoveredCount);
+
+            int attendancePercent = totalRequiredRecords == 0
+                ? 0
+                : (int)Math.Round(((totalRequiredRecords - effectiveAbsences) * 100.0) / totalRequiredRecords);
+
+
+            var chartGroups = records
+    .GroupBy(a => a.Date.Date)
+    .OrderBy(g => g.Key)
+    .Select(g =>
+    {
+        int dayPresent = g.Count(x => x.Status == "Present");
+        int dayAbsent = g.Count(x => x.Status == "Absent");
+        int dayRecovered = g.Count(x => x.Status == "Recovered");
+
+        int dayTotalRequired = dayPresent + dayAbsent;
+        int dayEffectiveAbsences = Math.Max(0, dayAbsent - dayRecovered);
+
+        int dayPercent = dayTotalRequired == 0
+            ? 0
+            : (int)Math.Round(((dayTotalRequired - dayEffectiveAbsences) * 100.0) / dayTotalRequired);
+
+        return new
+        {
+            Label = g.Key.ToString("dd.MM"),
+            Percent = dayPercent
+        };
+    })
+    .ToList();
+
+            ViewBag.PresentCount = presentCount;
+            ViewBag.AbsentCount = absentCount;
+            ViewBag.RecoveredCount = recoveredCount;
+            ViewBag.AttendancePercent = attendancePercent;
+
+            ViewBag.ChartLabels = chartGroups.Select(x => x.Label).ToList();
+            ViewBag.ChartValues = chartGroups.Select(x => x.Percent).ToList();
+
             return View(course);
         }
-
         [HttpPost]
         public IActionResult AddCourse(string name, string type)
         {
@@ -82,6 +129,264 @@ namespace SmartAttendance.Controllers
             ViewBag.CourseId = course.Id;
 
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult EditAttendance(int courseId, int studentId)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            var student = _context.Students
+                .FirstOrDefault(s => s.Id == studentId);
+
+            if (student == null)
+                return RedirectToAction("Course", new { id = courseId });
+
+            var isLinked = _context.CourseStudents
+                .Any(cs => cs.CourseId == courseId && cs.StudentId == studentId);
+
+            if (!isLinked)
+                return RedirectToAction("Course", new { id = courseId });
+
+            var records = _context.AttendanceRecords
+                .Where(a => a.CourseId == courseId && a.StudentId == studentId)
+                .OrderByDescending(a => a.Date)
+                .ToList();
+
+            ViewBag.CourseId = course.Id;
+            ViewBag.CourseName = course.Name;
+            ViewBag.StudentId = student.Id;
+            ViewBag.StudentEmail = student.Email;
+
+            return View(records);
+        }
+
+        [HttpPost]
+        public IActionResult SaveAttendance(int courseId, int studentId, DateTime date, string status)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            var isLinked = _context.CourseStudents
+                .Any(cs => cs.CourseId == courseId && cs.StudentId == studentId);
+
+            if (!isLinked)
+                return RedirectToAction("Course", new { id = courseId });
+
+            status = (status ?? "").Trim();
+
+            if (status != "Present" && status != "Absent" && status != "Recovered")
+                status = "Absent";
+
+            var cleanDate = date.Date;
+
+            var record = _context.AttendanceRecords
+                .FirstOrDefault(a =>
+                    a.CourseId == courseId &&
+                    a.StudentId == studentId &&
+                    a.Date == cleanDate);
+
+            if (record == null)
+            {
+                record = new AttendanceRecord
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    Date = cleanDate,
+                    Status = status
+                };
+
+                _context.AttendanceRecords.Add(record);
+            }
+            else
+            {
+                record.Status = status;
+            }
+
+            _context.SaveChanges();
+
+            return RedirectToAction("EditAttendance", new { courseId = courseId, studentId = studentId });
+        }
+
+        [HttpPost]
+        public IActionResult DeleteAttendance(int id, int courseId, int studentId)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
+                return RedirectToAction("Index");
+
+            var record = _context.AttendanceRecords
+                .FirstOrDefault(a => a.Id == id && a.CourseId == courseId && a.StudentId == studentId);
+
+            if (record != null)
+            {
+                _context.AttendanceRecords.Remove(record);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("EditAttendance", new { courseId = courseId, studentId = studentId });
+        }
+
+        [HttpGet]
+        public IActionResult StudentAttendance(int courseId, int studentId)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var records = PrepareStudentAttendanceData(courseId, studentId, professorId.Value);
+
+            if (records == null)
+                return RedirectToAction("Index");
+
+            return View(records);
+        }
+        [HttpGet]
+        public IActionResult StudentAttendancePdf(int courseId, int studentId)
+        {
+            var professorId = HttpContext.Session.GetInt32("ProfessorId");
+            if (professorId == null)
+                return RedirectToAction("Login", "ProfessorAuth");
+
+            var records = PrepareStudentAttendanceData(courseId, studentId, professorId.Value);
+
+            if (records == null)
+                return RedirectToAction("Index");
+
+            return View("StudentAttendancePdf", records);
+        }
+
+        private List<AttendanceRecord>? PrepareStudentAttendanceData(int courseId, int studentId, int professorId)
+        {
+            var course = _context.Courses
+                .FirstOrDefault(c => c.Id == courseId && c.ProfessorId == professorId);
+
+            if (course == null)
+                return null;
+
+            var student = _context.Students
+                .FirstOrDefault(s => s.Id == studentId);
+
+            if (student == null)
+                return null;
+
+            var isLinked = _context.CourseStudents
+                .Any(cs => cs.CourseId == courseId && cs.StudentId == studentId);
+
+            if (!isLinked)
+                return null;
+
+            var recordsAscending = _context.AttendanceRecords
+                .Where(a => a.CourseId == courseId && a.StudentId == studentId)
+                .OrderBy(a => a.Date)
+                .ToList();
+
+            var recordsDescending = recordsAscending
+                .OrderByDescending(a => a.Date)
+                .ToList();
+
+            int presentCount = recordsAscending.Count(a => a.Status == "Present");
+            int absentCount = recordsAscending.Count(a => a.Status == "Absent");
+            int recoveredCount = recordsAscending.Count(a => a.Status == "Recovered");
+
+            int totalRequiredRecords = presentCount + absentCount;
+            int effectiveAbsences = Math.Max(0, absentCount - recoveredCount);
+
+            int attendancePercent = totalRequiredRecords == 0
+                ? 0
+                : (int)Math.Round(((totalRequiredRecords - effectiveAbsences) * 100.0) / totalRequiredRecords);
+
+            var barLabels = recordsAscending
+                .Select(a => a.Date.ToString("dd.MM"))
+                .ToList();
+
+            var barValues = recordsAscending
+                .Select(a =>
+                {
+                    if (a.Status == "Present") return 100;
+                    if (a.Status == "Recovered") return 100;
+                    return 0;
+                })
+                .ToList();
+
+            var barStatuses = recordsAscending
+                .Select(a => a.Status)
+                .ToList();
+
+            var lineLabels = new List<string>();
+            var lineValues = new List<int>();
+
+            int runningPresent = 0;
+            int runningAbsent = 0;
+            int runningRecovered = 0;
+
+            foreach (var record in recordsAscending)
+            {
+                if (record.Status == "Present")
+                    runningPresent++;
+
+                if (record.Status == "Absent")
+                    runningAbsent++;
+
+                if (record.Status == "Recovered")
+                    runningRecovered++;
+
+                int runningTotalRequired = runningPresent + runningAbsent;
+                int runningEffectiveAbsences = Math.Max(0, runningAbsent - runningRecovered);
+
+                int runningAttendancePercent = runningTotalRequired == 0
+                    ? 0
+                    : (int)Math.Round(((runningTotalRequired - runningEffectiveAbsences) * 100.0) / runningTotalRequired);
+
+                lineLabels.Add(record.Date.ToString("dd.MM"));
+                lineValues.Add(runningAttendancePercent);
+            }
+
+            ViewBag.CourseId = course.Id;
+            ViewBag.CourseName = course.Name;
+            ViewBag.CourseType = course.IsLab ? "Laboratory" : "Course";
+
+            ViewBag.StudentId = student.Id;
+            ViewBag.StudentEmail = student.Email;
+
+            ViewBag.PresentCount = presentCount;
+            ViewBag.AbsentCount = absentCount;
+            ViewBag.RecoveredCount = recoveredCount;
+            ViewBag.TotalRequiredRecords = totalRequiredRecords;
+            ViewBag.EffectiveAbsences = effectiveAbsences;
+            ViewBag.AttendancePercent = attendancePercent;
+
+            ViewBag.BarChartLabels = barLabels;
+            ViewBag.BarChartValues = barValues;
+            ViewBag.BarChartStatuses = barStatuses;
+
+            ViewBag.LineChartLabels = lineLabels;
+            ViewBag.LineChartValues = lineValues;
+
+            ViewBag.GeneratedAt = DateTime.Now;
+
+            return recordsDescending;
         }
 
         [HttpPost]
