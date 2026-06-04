@@ -1,0 +1,127 @@
+﻿@model SmartAttendance.ViewModels.HardwareControlViewModel
+
+@{
+    ViewData["Title"] = "Hardware Control";
+
+    string modeClass = Model.CurrentMode.ToLowerInvariant();
+}
+
+<div class="app-shell">
+    <div class="hero-card hardware-card">
+
+        <div class="hardware-header">
+            <div>
+                <div class="brand">Study Sync</div>
+
+                <div class="hero-title" style="font-size:34px; margin-top:16px;">
+                    Hardware Control
+                </div>
+
+                <div class="muted">
+                    @Model.CourseName — @Model.CourseType
+                </div>
+            </div>
+
+            <a href="@Url.Action("Course", "Professor", new { id = Model.CourseId })"
+               class="course-back-link">
+                ← Back to Course
+            </a>
+        </div>
+
+        @if (TempData["HardwareMessage"] != null)
+        {
+            <div class="settings-message">
+                @TempData["HardwareMessage"]
+            </div>
+        }
+
+        <div class="hardware-grid">
+
+            <div class="hardware-panel">
+                <h2>Device Status</h2>
+
+                <div class="hardware-status-card">
+                    <div class="hardware-label">Device Key</div>
+                    <div class="hardware-value">@Model.DeviceKey</div>
+                </div>
+
+                <div class="hardware-status-card">
+                    <div class="hardware-label">Current Mode</div>
+                    <div class="hardware-mode-pill @modeClass">
+                        @Model.CurrentMode
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.SessionCourseName))
+                {
+                    <div class="hardware-status-card">
+                        <div class="hardware-label">Active Course</div>
+                        <div class="hardware-value">@Model.SessionCourseName</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.CurrentStudentEmail))
+                {
+                    <div class="hardware-status-card">
+                        <div class="hardware-label">Current Assignment Student</div>
+                        <div class="hardware-value">@Model.CurrentStudentEmail</div>
+                    </div>
+                }
+
+                <div class="hardware-status-card">
+                    <div class="hardware-label">Students Without RFID Tag</div>
+                    <div class="hardware-value">@Model.StudentsWithoutTag</div>
+                </div>
+            </div>
+
+            <div class="hardware-panel">
+                <h2>Device Actions</h2>
+
+                @if (Model.DeviceIsBusy)
+                {
+                    <div class="hardware-warning">
+                        The device is currently active for another course. Stop it there before starting a new session.
+                    </div>
+                }
+
+                <div class="hardware-actions">
+                    <form method="post" action="@Url.Action("StartAssignment", "Hardware")">
+                        <input type="hidden" name="courseId" value="@Model.CourseId" />
+
+                        <button class="btn-primary-soft hardware-action-btn"
+                                type="submit"
+                                @(Model.DeviceIsBusy ? "disabled" : null)>
+                            Start Assignment
+                        </button>
+                    </form>
+
+                    <form method="post" action="@Url.Action("StartAttendance", "Hardware")">
+                        <input type="hidden" name="courseId" value="@Model.CourseId" />
+
+                        <button class="btn-primary-soft hardware-action-btn"
+                                type="submit"
+                                @(Model.DeviceIsBusy ? "disabled" : null)>
+                            Start Attendance
+                        </button>
+                    </form>
+
+                    <form method="post" action="@Url.Action("StopDevice", "Hardware")">
+                        <input type="hidden" name="courseId" value="@Model.CourseId" />
+
+                        <button class="btn-primary-soft hardware-action-btn stop"
+                                type="submit">
+                            Stop Device
+                        </button>
+                    </form>
+                </div>
+
+                <div class="hardware-note">
+                    Assignment mode is used to connect RFID tags to students without an active tag.
+                    Attendance mode is used during class to mark students as present when their tag is scanned.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
