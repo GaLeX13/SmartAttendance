@@ -1810,3 +1810,148 @@ body {
         height: 72px;
     }
 }
+
+.rfid-card {
+    width: min(1280px, 95vw);
+    min-height: 700px;
+    padding: 42px 48px;
+}
+
+.rfid-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.rfid-info-panel {
+    margin-top: 22px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(47, 125, 191, 0.08);
+    border: 1px solid rgba(47, 125, 191, 0.16);
+    color: var(--text);
+    font-weight: 650;
+}
+
+.rfid-table-card {
+    margin-top: 22px;
+    background: rgba(255, 255, 255, 0.68);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.rfid-table-scroll {
+    height: 430px;
+    overflow: auto;
+    padding-right: 8px;
+}
+
+.rfid-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+    .rfid-table th {
+        text-align: left;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        padding: 0 12px 4px 12px;
+        white-space: nowrap;
+    }
+
+    .rfid-table td {
+        background: rgba(255, 255, 255, 0.78);
+        padding: 12px;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+        .rfid-table td:first-child {
+            border-radius: 14px 0 0 14px;
+        }
+
+        .rfid-table td:last-child {
+            border-radius: 0 14px 14px 0;
+        }
+
+.rfid-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 850;
+}
+
+    .rfid-status.assigned {
+        background: rgba(22, 138, 58, 0.12);
+        color: #168a3a;
+    }
+
+    .rfid-status.missing {
+        background: rgba(176, 0, 32, 0.12);
+        color: #b00020;
+    }
+
+.rfid-uid {
+    font-family: Consolas, monospace;
+    font-weight: 800;
+}
+
+.rfid-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rfid-input {
+    width: 180px;
+}
+
+.rfid-save-btn {
+    min-width: 90px;
+    padding: 10px 14px;
+    font-size: 14px;
+}
+
+.rfid-table-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.rfid-table-scroll::-webkit-scrollbar-track {
+    background: rgba(15, 43, 70, 0.06);
+    border-radius: 999px;
+}
+
+.rfid-table-scroll::-webkit-scrollbar-thumb {
+    background: rgba(47, 125, 191, 0.35);
+    border-radius: 999px;
+}
+
+    .rfid-table-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(47, 125, 191, 0.55);
+    }
+
+@media (max-width: 900px) {
+    .rfid-card {
+        min-height: auto;
+    }
+
+    .rfid-header {
+        flex-direction: column;
+    }
+
+    .rfid-table-scroll {
+        height: 360px;
+    }
+}

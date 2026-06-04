@@ -29,6 +29,10 @@
             </div>
 
             <div class="course-header-actions">
+                <a href="@Url.Action("Index", "Rfid", new { courseId = Model.Id })"
+                   class="btn-primary-soft class-report-btn">
+                    RFID Tags
+                </a>
                 <a href="@Url.Action("CourseSettings", "Professor", new { id = Model.Id })"
                    class="btn-primary-soft course-settings-btn">
                     Course Settings

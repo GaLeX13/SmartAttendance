@@ -1,0 +1,133 @@
+﻿@model SmartAttendance.ViewModels.RfidTagManagerViewModel
+
+@{
+    ViewData["Title"] = "RFID Tags";
+}
+
+<div class="app-shell">
+    <div class="hero-card rfid-card">
+
+        <div class="rfid-header">
+            <div>
+                <div class="brand">Study Sync</div>
+
+                <div class="hero-title" style="font-size:34px; margin-top:16px;">
+                    RFID Tags
+                </div>
+
+                <div class="muted">
+                    @Model.CourseName — @Model.CourseType
+                </div>
+            </div>
+
+            <a href="@Url.Action("Course", "Professor", new { id = Model.CourseId })"
+               class="course-back-link">
+                ← Back to Course
+            </a>
+        </div>
+
+        @if (TempData["RfidMessage"] != null)
+        {
+            <div class="settings-message">
+                @TempData["RfidMessage"]
+            </div>
+        }
+
+        <div class="rfid-info-panel">
+            Assign or update RFID tags for enrolled students. The same active RFID tag can be reused by the student across multiple courses.
+        </div>
+
+        <div class="rfid-table-card">
+            <div class="rfid-table-scroll">
+                @if (!Model.Students.Any())
+                {
+                    <div class="muted attendance-empty">
+                        No students are enrolled in this course.
+                    </div>
+                }
+                else
+                {
+                    <table class="rfid-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Status</th>
+                                <th>Current UID</th>
+                                <th>Save / Change UID</th>
+                                <th>Remove</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var student in Model.Students)
+                            {
+                                <tr>
+                                    <td>@student.StudentEmail</td>
+
+                                    <td>
+                                        @if (student.HasActiveTag)
+                                        {
+                                            <span class="rfid-status assigned">Assigned</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="rfid-status missing">Not assigned</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (student.HasActiveTag)
+                                        {
+                                            <span class="rfid-uid">@student.CurrentUid</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="muted">No tag</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <form method="post"
+                                              action="@Url.Action("SaveTag", "Rfid")"
+                                              class="rfid-form">
+                                            <input type="hidden" name="courseId" value="@Model.CourseId" />
+                                            <input type="hidden" name="studentId" value="@student.StudentId" />
+
+                                            <input class="form-control rfid-input"
+                                                   name="uid"
+                                                   value="@student.CurrentUid"
+                                                   placeholder="04:A1:B2:C3" />
+
+                                            <button class="btn-primary-soft rfid-save-btn" type="submit">
+                                                Save
+                                            </button>
+                                        </form>
+                                    </td>
+
+                                    <td>
+                                        @if (student.HasActiveTag)
+                                        {
+                                            <form method="post"
+                                                  action="@Url.Action("RemoveTag", "Rfid")">
+                                                <input type="hidden" name="courseId" value="@Model.CourseId" />
+                                                <input type="hidden" name="studentId" value="@student.StudentId" />
+
+                                                <button class="icon-btn danger"
+                                                        type="submit"
+                                                        title="Remove RFID Tag"
+                                                        onclick="return confirm('Remove this RFID tag?');">
+                                                    🗑️
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
