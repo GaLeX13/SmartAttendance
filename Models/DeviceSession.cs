@@ -16,6 +16,8 @@
 
         public Student? CurrentStudent { get; set; }
 
+        public string SkippedStudentIds { get; set; } = string.Empty;
+
         public bool IsActive { get; set; } = true;
 
         public DateTime StartedAt { get; set; } = DateTime.Now;

@@ -124,4 +124,12 @@
         </div>
 
     </div>
+    @if (Model.CurrentMode == "Assign")
+    {
+        <script>
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        </script>
+    }
 </div>

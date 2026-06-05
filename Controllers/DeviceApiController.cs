@@ -55,7 +55,8 @@ namespace SmartAttendance.Controllers
             {
                 if (session.CurrentStudentId == null)
                 {
-                    var nextStudent = GetNextStudentWithoutTag(session.CourseId);
+                    var skippedIds = GetSkippedStudentIds(session);
+                    var nextStudent = GetNextStudentWithoutTag(session.CourseId, null, skippedIds);
 
                     if (nextStudent == null)
                     {
@@ -69,9 +70,9 @@ namespace SmartAttendance.Controllers
                             mode = "Idle",
                             courseId = session.CourseId,
                             courseName = session.Course.Name,
-                            message = "All students already have RFID tags",
+                            message = "No more students available in this assignment session",
                             displayLine1 = "Assignment done",
-                            displayLine2 = "All tags set"
+                            displayLine2 = "No more students"
                         });
                     }
 
@@ -161,6 +162,9 @@ namespace SmartAttendance.Controllers
                 });
             }
 
+            int currentStudentId = session.CurrentStudentId.Value;
+            string assignedStudentEmail = session.CurrentStudent?.Email ?? "";
+
             bool uidAlreadyUsed = _context.RfidTags
                 .Any(t => t.IsActive && t.Uid == normalizedUid);
 
@@ -176,16 +180,28 @@ namespace SmartAttendance.Controllers
             }
 
             bool studentAlreadyHasTag = _context.RfidTags
-                .Any(t => t.IsActive && t.StudentId == session.CurrentStudentId.Value);
+                .Any(t => t.IsActive && t.StudentId == currentStudentId);
+
+            var skippedIds = GetSkippedStudentIds(session);
 
             if (studentAlreadyHasTag)
             {
-                session.CurrentStudentId = GetNextStudentWithoutTag(session.CourseId)?.StudentId;
+                var nextStudentAfterExistingTag = GetNextStudentWithoutTag(session.CourseId, currentStudentId, skippedIds);
+
+                session.CurrentStudentId = nextStudentAfterExistingTag?.StudentId;
+                session.LastSeenAt = DateTime.Now;
+
+                if (nextStudentAfterExistingTag == null)
+                {
+                    session.Mode = "Idle";
+                }
+
                 _context.SaveChanges();
 
                 return Ok(new
                 {
                     success = false,
+                    mode = session.Mode,
                     message = "Student already has an active RFID tag",
                     displayLine1 = "Student has",
                     displayLine2 = "a tag"
@@ -195,16 +211,15 @@ namespace SmartAttendance.Controllers
             var tag = new RfidTag
             {
                 Uid = normalizedUid,
-                StudentId = session.CurrentStudentId.Value,
+                StudentId = currentStudentId,
                 IsActive = true,
                 AssignedAt = DateTime.Now
             };
 
             _context.RfidTags.Add(tag);
+            _context.SaveChanges();
 
-            var assignedStudentEmail = session.CurrentStudent?.Email ?? "";
-
-            var nextStudent = GetNextStudentWithoutTag(session.CourseId);
+            var nextStudent = GetNextStudentWithoutTag(session.CourseId, currentStudentId, skippedIds);
 
             session.CurrentStudentId = nextStudent?.StudentId;
             session.LastSeenAt = DateTime.Now;
@@ -355,9 +370,24 @@ namespace SmartAttendance.Controllers
                 });
             }
 
-            var skippedEmail = session.CurrentStudent?.Email ?? "";
+            if (session.CurrentStudentId == null)
+            {
+                return Ok(new
+                {
+                    success = false,
+                    message = "No student selected",
+                    displayLine1 = "No student",
+                    displayLine2 = "selected"
+                });
+            }
 
-            var nextStudent = GetNextStudentWithoutTag(session.CourseId, session.CurrentStudentId);
+            int skippedStudentId = session.CurrentStudentId.Value;
+            string skippedEmail = session.CurrentStudent?.Email ?? "";
+
+            AddSkippedStudentId(session, skippedStudentId);
+
+            var skippedIds = GetSkippedStudentIds(session);
+            var nextStudent = GetNextStudentWithoutTag(session.CourseId, skippedStudentId, skippedIds);
 
             if (nextStudent == null)
             {
@@ -371,7 +401,7 @@ namespace SmartAttendance.Controllers
                 {
                     success = true,
                     mode = "Idle",
-                    message = "No more students without RFID tags",
+                    message = "No more students available in this assignment session",
                     skippedStudent = skippedEmail,
                     displayLine1 = "No more",
                     displayLine2 = "students"
@@ -395,30 +425,76 @@ namespace SmartAttendance.Controllers
             });
         }
 
-        private CourseStudent? GetNextStudentWithoutTag(int courseId, int? afterStudentId = null)
+        private CourseStudent? GetNextStudentWithoutTag(int courseId, int? afterStudentId = null, List<int>? skippedStudentIds = null)
         {
+            var skippedIds = skippedStudentIds ?? new List<int>();
+
             var students = _context.CourseStudents
                 .Include(cs => cs.Student)
-                    .ThenInclude(s => s.RfidTags)
                 .Where(cs => cs.CourseId == courseId)
                 .OrderBy(cs => cs.Student.Email)
                 .ToList();
 
+            if (!students.Any())
+                return null;
+
+            int startIndex = 0;
+
             if (afterStudentId != null)
             {
-                var currentIndex = students.FindIndex(s => s.StudentId == afterStudentId.Value);
+                int foundIndex = students.FindIndex(cs => cs.StudentId == afterStudentId.Value);
 
-                if (currentIndex >= 0)
+                if (foundIndex >= 0)
                 {
-                    students = students
-                        .Skip(currentIndex + 1)
-                        .Concat(students.Take(currentIndex + 1))
-                        .ToList();
+                    startIndex = foundIndex + 1;
                 }
             }
 
-            return students
-                .FirstOrDefault(cs => !cs.Student.RfidTags.Any(t => t.IsActive));
+            for (int i = 0; i < students.Count; i++)
+            {
+                int index = (startIndex + i) % students.Count;
+                var candidate = students[index];
+
+                if (skippedIds.Contains(candidate.StudentId))
+                    continue;
+
+                bool hasActiveTag = _context.RfidTags
+                    .Any(t => t.StudentId == candidate.StudentId && t.IsActive);
+
+                if (!hasActiveTag)
+                    return candidate;
+            }
+
+            return null;
+        }
+
+        private List<int> GetSkippedStudentIds(DeviceSession session)
+        {
+            if (string.IsNullOrWhiteSpace(session.SkippedStudentIds))
+                return new List<int>();
+
+            return session.SkippedStudentIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(value =>
+                {
+                    bool parsed = int.TryParse(value, out int id);
+                    return parsed ? id : 0;
+                })
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+        }
+
+        private void AddSkippedStudentId(DeviceSession session, int studentId)
+        {
+            var skippedIds = GetSkippedStudentIds(session);
+
+            if (!skippedIds.Contains(studentId))
+            {
+                skippedIds.Add(studentId);
+            }
+
+            session.SkippedStudentIds = string.Join(",", skippedIds);
         }
 
         private string NormalizeUid(string uid)

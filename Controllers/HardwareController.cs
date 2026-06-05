@@ -94,6 +94,7 @@ namespace SmartAttendance.Controllers
             session.Mode = "Assign";
             session.CourseId = course.Id;
             session.CurrentStudentId = nextStudent.StudentId;
+            session.SkippedStudentIds = string.Empty;
             session.IsActive = true;
             session.LastSeenAt = DateTime.Now;
 
@@ -128,6 +129,7 @@ namespace SmartAttendance.Controllers
             session.Mode = "Attendance";
             session.CourseId = course.Id;
             session.CurrentStudentId = null;
+            session.SkippedStudentIds = string.Empty;
             session.IsActive = true;
             session.LastSeenAt = DateTime.Now;
 
