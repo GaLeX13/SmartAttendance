@@ -43,8 +43,8 @@ namespace SmartAttendance.Controllers
                     success = true,
                     mode = "Idle",
                     message = "Device is idle",
-                    displayLine1 = "Study Sync",
-                    displayLine2 = "Idle"
+                    displayLine1 = "Device ready",
+                    displayLine2 = "Waiting..."
                 });
             }
 
@@ -114,8 +114,8 @@ namespace SmartAttendance.Controllers
                 success = true,
                 mode = "Idle",
                 message = "Unknown mode",
-                displayLine1 = "Study Sync",
-                displayLine2 = "Idle"
+                displayLine1 = "Device ready",
+                displayLine2 = "Waiting..."
             });
         }
 
