@@ -27,7 +27,7 @@
 
             <a href="@Url.Action("Course", "Professor", new { id = courseId })"
                class="course-back-link">
-                ← Back to Course
+                Back to course
             </a>
         </div>
 
@@ -94,11 +94,10 @@
                                     <input type="hidden" name="courseId" value="@courseId" />
                                     <input type="hidden" name="studentId" value="@studentId" />
 
-                                    <button class="icon-btn danger"
+                                    <button class="btn-danger-soft"
                                             type="submit"
-                                            title="Delete Record"
                                             onclick="return confirm('Delete this attendance record?');">
-                                        🗑️
+                                        Delete
                                     </button>
                                 </form>
                             </div>

@@ -90,6 +90,7 @@ namespace SmartAttendance.Controllers
             ViewBag.AbsentCount = absentCount;
             ViewBag.RecoveredCount = recoveredCount;
             ViewBag.AttendancePercent = attendancePercent;
+            ViewBag.AttendanceRecords = records;
 
             ViewBag.ChartLabels = chartGroups.Select(x => x.Label).ToList();
             ViewBag.ChartValues = chartGroups.Select(x => x.Percent).ToList();

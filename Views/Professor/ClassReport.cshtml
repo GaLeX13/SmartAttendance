@@ -34,7 +34,7 @@
 
             <a href="@Url.Action("Course", "Professor", new { id = courseId })"
                class="course-back-link">
-                ← Back to Course
+                Back to course
             </a>
         </div>
 
@@ -184,9 +184,9 @@
                                     <td>@student.RecoveredCount</td>
                                     <td>@student.EffectiveAbsences</td>
                                     <td>
-                                        <a class="icon-btn"
-                                           href="@Url.Action("StudentAttendance", "Professor", new { courseId = courseId, studentId = student.StudentId })">
-                                            👁️
+                                        <a class="btn-secondary-soft"
+                                           href="@Url.Action("StudentAttendance", "Professor", new { courseId = ViewBag.CourseId, studentId = student.StudentId })">
+                                            Details
                                         </a>
                                     </td>
                                 </tr>

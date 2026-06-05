@@ -1,15 +1,80 @@
 ﻿@model SmartAttendance.Models.Course
+@using System.Globalization
+@using System.Collections.Generic
+@using SmartAttendance.Models
 
 @{
     ViewData["Title"] = Model.Name;
-
-    var chartLabels = ViewBag.ChartLabels as List<string> ?? new List<string>();
-    var chartValues = ViewBag.ChartValues as List<int> ?? new List<int>();
 
     int presentCount = ViewBag.PresentCount ?? 0;
     int absentCount = ViewBag.AbsentCount ?? 0;
     int recoveredCount = ViewBag.RecoveredCount ?? 0;
     int attendancePercent = ViewBag.AttendancePercent ?? 0;
+
+    var attendanceRecords = ViewBag.AttendanceRecords as IEnumerable<AttendanceRecord>
+        ?? Enumerable.Empty<AttendanceRecord>();
+
+    var graphRecords = attendanceRecords
+        .Where(r => r.Status == "Present" || r.Status == "Absent" || r.Status == "Recovered")
+        .ToList();
+
+    var today = DateTime.Today;
+    var currentWeekStart = today.AddDays(-(((int)today.DayOfWeek + 6) % 7)).Date;
+
+    var selectedWeekText = Context.Request.Query["weekStart"].ToString();
+    var selectedWeekStart = currentWeekStart;
+
+    if (DateTime.TryParse(selectedWeekText, out var parsedWeek))
+    {
+        selectedWeekStart = parsedWeek.Date.AddDays(-(((int)parsedWeek.DayOfWeek + 6) % 7)).Date;
+    }
+
+    var selectedWeekEnd = selectedWeekStart.AddDays(6);
+
+    var weekRecords = graphRecords
+        .Where(r => r.Date.Date >= selectedWeekStart && r.Date.Date <= selectedWeekEnd)
+        .ToList();
+
+    int weekPresent = weekRecords.Count(r => r.Status == "Present");
+    int weekRecovered = weekRecords.Count(r => r.Status == "Recovered");
+    int weekAbsent = weekRecords.Count(r => r.Status == "Absent");
+    int totalWeekRecords = weekPresent + weekRecovered + weekAbsent;
+
+    var availableWeeks = graphRecords
+        .Select(r => r.Date.Date.AddDays(-(((int)r.Date.DayOfWeek + 6) % 7)))
+        .Distinct()
+        .OrderBy(d => d)
+        .ToList();
+
+    DateTime? previousWeek = availableWeeks
+        .Where(d => d < selectedWeekStart)
+        .Select(d => (DateTime?)d)
+        .LastOrDefault();
+
+    DateTime? nextWeek = availableWeeks
+        .Where(d => d > selectedWeekStart)
+        .Select(d => (DateTime?)d)
+        .FirstOrDefault();
+
+    if (selectedWeekStart < currentWeekStart && (!nextWeek.HasValue || nextWeek.Value > currentWeekStart))
+    {
+        nextWeek = currentWeekStart;
+    }
+
+    var selectedWeekLabel = $"Week {ISOWeek.GetWeekOfYear(selectedWeekStart)}, {ISOWeek.GetYear(selectedWeekStart)}";
+
+    double presentAngle = totalWeekRecords > 0 ? weekPresent * 360.0 / totalWeekRecords : 0;
+    double recoveredAngle = totalWeekRecords > 0 ? weekRecovered * 360.0 / totalWeekRecords : 0;
+
+    var presentEnd = presentAngle;
+    var recoveredEnd = presentAngle + recoveredAngle;
+
+    var presentEndText = presentEnd.ToString("0.##", CultureInfo.InvariantCulture);
+    var recoveredEndText = recoveredEnd.ToString("0.##", CultureInfo.InvariantCulture);
+
+    string pieBackground = totalWeekRecords > 0
+        ? $"conic-gradient(#188a3a 0deg {presentEndText}deg, #2288c8 {presentEndText}deg {recoveredEndText}deg, #b00020 {recoveredEndText}deg 360deg)"
+        : "#d9e4ef";
 }
 
 <div class="app-shell">
@@ -30,28 +95,28 @@
 
             <div class="course-header-actions">
                 <a href="@Url.Action("Index", "Rfid", new { courseId = Model.Id })"
-                   class="btn-primary-soft class-report-btn">
+                   class="btn-primary-soft course-nav-btn">
                     RFID Tags
                 </a>
 
                 <a href="@Url.Action("Index", "Hardware", new { courseId = Model.Id })"
-                   class="btn-primary-soft class-report-btn">
+                   class="btn-primary-soft course-nav-btn">
                     Hardware Control
                 </a>
 
                 <a href="@Url.Action("CourseSettings", "Professor", new { id = Model.Id })"
-                   class="btn-primary-soft course-settings-btn">
-                    Course Settings
+                   class="btn-primary-soft course-nav-btn">
+                    Class Settings
                 </a>
 
                 <a href="@Url.Action("ClassReport", "Professor", new { courseId = Model.Id })"
-                   class="btn-primary-soft class-report-btn">
+                   class="btn-primary-soft course-nav-btn">
                     Class Report
                 </a>
 
                 <a href="@Url.Action("Index", "Professor")"
                    class="course-back-link">
-                    ← Back to Dashboard
+                    Back to dashboard
                 </a>
             </div>
         </div>
@@ -68,7 +133,7 @@
                     </div>
 
                     <div class="stat-mini-card">
-                        <div class="stat-mini-label">Average Attendance</div>
+                        <div class="stat-mini-label">Average attendance</div>
                         <div class="stat-mini-value">@attendancePercent%</div>
                     </div>
 
@@ -88,31 +153,112 @@
                     </div>
                 </div>
 
-                <div class="attendance-chart-card">
-                    <div class="chart-title">Attendance Progress by Session</div>
+                <div class="week-pie-card">
+                    <div class="week-pie-header">
+                        <div>
+                            <h3>Attendance progress by week</h3>
+                        </div>
 
-                    @if (!chartLabels.Any())
+                        <div class="week-pie-period">
+                            <div class="week-pie-title">@selectedWeekLabel</div>
+                            <div class="week-pie-dates">
+                                @selectedWeekStart.ToString("dd.MM.yyyy") - @selectedWeekEnd.ToString("dd.MM.yyyy")
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!graphRecords.Any())
                     {
-                        <div class="chart-empty">
-                            The chart will appear after attendance records are added.
+                        <div class="week-empty-state">
+                            No attendance records have been added yet.
+                        </div>
+                    }
+                    else if (totalWeekRecords == 0)
+                    {
+                        <div class="week-pie-nav-only">
+                            @if (previousWeek.HasValue)
+                            {
+                                <a class="week-nav-btn"
+                                   href="@Url.Action("Course", "Professor", new { id = Model.Id, weekStart = previousWeek.Value.ToString("yyyy-MM-dd") })">
+                                    &lt;
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="week-nav-btn disabled">&lt;</span>
+                            }
+
+                            <div class="week-empty-state">
+                                No graph for this week.
+                            </div>
+
+                            @if (nextWeek.HasValue)
+                            {
+                                <a class="week-nav-btn"
+                                   href="@Url.Action("Course", "Professor", new { id = Model.Id, weekStart = nextWeek.Value.ToString("yyyy-MM-dd") })">
+                                    &gt;
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="week-nav-btn disabled">&gt;</span>
+                            }
                         </div>
                     }
                     else
                     {
-                        <div class="attendance-chart">
-                            @for (int i = 0; i < chartLabels.Count; i++)
+                        <div class="week-pie-body">
+                            @if (previousWeek.HasValue)
                             {
-                                var value = chartValues[i];
-                                var barHeight = Math.Max(value, 4);
-
-                                <div class="chart-column">
-                                    <div class="chart-bar-wrap">
-                                        <div class="chart-bar" style="height:@barHeight%;"></div>
-                                    </div>
-                                    <div class="chart-label">@chartLabels[i]</div>
-                                    <div class="chart-percent">@value%</div>
-                                </div>
+                                <a class="week-nav-btn"
+                                   href="@Url.Action("Course", "Professor", new { id = Model.Id, weekStart = previousWeek.Value.ToString("yyyy-MM-dd") })">
+                                    &lt;
+                                </a>
                             }
+                            else
+                            {
+                                <span class="week-nav-btn disabled">&lt;</span>
+                            }
+
+                            <div class="week-pie-visual-wrap">
+                                <div class="week-pie-visual" style="background:@pieBackground;"></div>
+                            </div>
+
+                            @if (nextWeek.HasValue)
+                            {
+                                <a class="week-nav-btn"
+                                   href="@Url.Action("Course", "Professor", new { id = Model.Id, weekStart = nextWeek.Value.ToString("yyyy-MM-dd") })">
+                                    &gt;
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="week-nav-btn disabled">&gt;</span>
+                            }
+                        </div>
+
+                        <div class="week-pie-summary">
+                            <div class="week-pie-row">
+                                <span class="dot present"></span>
+                                <span class="label">Present</span>
+                                <span class="value">@weekPresent</span>
+                            </div>
+
+                            <div class="week-pie-row">
+                                <span class="dot recovered"></span>
+                                <span class="label">Recovered</span>
+                                <span class="value">@weekRecovered</span>
+                            </div>
+
+                            <div class="week-pie-row">
+                                <span class="dot absent"></span>
+                                <span class="label">Absent</span>
+                                <span class="value">@weekAbsent</span>
+                            </div>
+
+                            <div class="week-pie-total">
+                                Total records: @totalWeekRecords
+                            </div>
                         </div>
                     }
                 </div>
@@ -120,7 +266,7 @@
 
             <div class="course-students-card">
                 <div class="students-header">
-                    <h2>Enrolled Students</h2>
+                    <h2>Enrolled students</h2>
                     <span>@Model.CourseStudents.Count</span>
                 </div>
 
@@ -134,41 +280,33 @@
                 <div class="students-scroll">
                     @if (!Model.CourseStudents.Any())
                     {
-                        <div class="muted">No students are enrolled in this course.</div>
+                        <div class="muted">No students are enrolled yet.</div>
                     }
                     else
                     {
                         @foreach (var cs in Model.CourseStudents)
                         {
-                            <div class="student-row" data-student-email="@cs.Student.Email.ToLowerInvariant()">
+                            <div class="student-row" data-student-email="@cs.Student.Email.ToLower()">
                                 <div class="student-email">
                                     @cs.Student.Email
                                 </div>
 
                                 <div class="student-actions">
-                                    <a class="icon-btn"
-                                       href="@Url.Action("StudentAttendance", "Professor", new { courseId = Model.Id, studentId = cs.StudentId })"
-                                       title="View Student Attendance">
-                                        👁️
-                                    </a>
-
-                                    <a class="icon-btn"
-                                       href="@Url.Action("EditAttendance", "Professor", new { courseId = Model.Id, studentId = cs.StudentId })"
-                                       title="Edit Attendance">
-                                        ✏️
+                                    <a class="btn-secondary-soft student-action-btn"
+                                       href="@Url.Action("StudentAttendance", "Professor", new { courseId = Model.Id, studentId = cs.StudentId })">
+                                        View
                                     </a>
 
                                     <form method="post"
                                           action="@Url.Action("RemoveStudent", "Professor")"
-                                          style="display:inline;">
+                                          class="inline-form">
                                         <input type="hidden" name="courseId" value="@Model.Id" />
                                         <input type="hidden" name="studentId" value="@cs.StudentId" />
 
-                                        <button class="icon-btn danger"
+                                        <button class="btn-danger-soft student-action-btn"
                                                 type="submit"
-                                                title="Remove Student"
-                                                onclick="return confirm('Remove this student from the course?');">
-                                            🗑️
+                                                onclick="return confirm('Remove this student from the class?');">
+                                            Delete
                                         </button>
                                     </form>
                                 </div>

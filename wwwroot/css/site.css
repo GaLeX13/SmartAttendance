@@ -1174,6 +1174,7 @@ body {
         margin-top: 8px;
     }
 }
+
 .course-header-actions {
     display: flex;
     align-items: center;
@@ -1811,6 +1812,368 @@ body {
     }
 }
 
+.btn-primary-soft {
+    border-radius: 8px;
+    background: #2f7dbf;
+    box-shadow: 0 8px 16px rgba(47, 125, 191, 0.18);
+    letter-spacing: 0;
+    transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+    .btn-primary-soft:hover {
+        transform: none;
+        filter: none;
+        background: #2a6ea8;
+        box-shadow: 0 8px 14px rgba(47, 125, 191, 0.14);
+    }
+
+    .btn-primary-soft:active {
+        transform: none;
+        filter: none;
+        background: #255f91;
+    }
+
+.btn-secondary-soft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    min-height: 42px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(47, 125, 191, 0.28);
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--blue);
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1;
+}
+
+    .btn-secondary-soft:hover {
+        background: rgba(47, 125, 191, 0.08);
+    }
+
+.btn-danger-soft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    min-height: 42px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(176, 0, 32, 0.28);
+    background: rgba(255, 255, 255, 0.78);
+    color: #a0001d;
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1;
+}
+
+    .btn-danger-soft:hover {
+        background: rgba(176, 0, 32, 0.08);
+    }
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.feature-list {
+    gap: 12px;
+}
+
+    .feature-list div {
+        position: relative;
+        padding-left: 18px;
+        font-weight: 600;
+    }
+
+        .feature-list div::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 11px;
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(47, 125, 191, 0.75);
+        }
+
+.choice-buttons .btn-primary-soft {
+    min-width: 190px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(47, 125, 191, 0.16);
+}
+
+.course-card {
+    grid-template-columns: 1fr 130px 130px 360px;
+}
+
+.course-actions {
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.student-actions {
+    gap: 10px;
+}
+
+.course-header-actions {
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.course-settings-btn,
+.class-report-btn {
+    min-width: 145px;
+    border-radius: 8px;
+}
+
+.course-back-link {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 750;
+    font-size: 15px;
+    margin-top: 12px;
+}
+
+    .course-back-link:hover {
+        text-decoration: underline;
+    }
+
+.rfid-info-panel,
+.hardware-note,
+.settings-message {
+    background: rgba(255, 255, 255, 0.56);
+    border: 1px solid rgba(15, 43, 70, 0.08);
+    color: var(--muted);
+    font-weight: 650;
+}
+
+.rfid-table th,
+.class-report-table th {
+    font-size: 12px;
+}
+
+.rfid-save-btn {
+    min-width: 90px;
+    border-radius: 8px;
+}
+
+.hardware-actions {
+    width: 100%;
+    max-width: 360px;
+}
+
+.hardware-action-btn {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 8px;
+}
+
+    .hardware-action-btn.stop {
+        background: #a0001d;
+    }
+
+.hardware-panel:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.hardware-note {
+    max-width: 560px;
+}
+
+.help-bubble {
+    background: transparent;
+    border: 1px solid rgba(15, 43, 70, 0.18);
+    color: var(--muted);
+    cursor: default;
+}
+
+.help-content {
+    display: none;
+}
+
+.completion-description.highlight {
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(15, 43, 70, 0.08);
+    color: var(--muted);
+}
+
+.chart-toggle.active {
+    background: #2f7dbf;
+}
+
+.student-chart-bar.present {
+    background: #168a3a;
+}
+
+.student-chart-bar.absent {
+    background: #b00020;
+}
+
+.student-chart-bar.recovered {
+    background: #1c87c9;
+}
+
+.chart-bar {
+    background: #2f7dbf;
+}
+
+@media (max-width: 1100px) {
+    .course-card {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .course-actions {
+        justify-content: flex-start;
+    }
+}
+
+.feature-list div {
+    padding-left: 0;
+}
+
+    .feature-list div::before {
+        display: none;
+    }
+
+.hardware-card {
+    width: min(1180px, 94vw);
+    min-height: 660px;
+    padding: 42px 48px;
+}
+
+.hardware-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.hardware-grid {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 26px;
+    align-items: stretch;
+}
+
+.hardware-panel {
+    background: rgba(255, 255, 255, 0.68);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+    .hardware-panel h2 {
+        margin: 0 0 18px 0;
+        color: var(--text);
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+.hardware-status-card {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(15, 43, 70, 0.06);
+}
+
+.hardware-label {
+    color: var(--muted);
+    font-weight: 750;
+    font-size: 13px;
+}
+
+.hardware-value {
+    margin-top: 4px;
+    color: var(--text);
+    font-weight: 850;
+    word-break: break-word;
+}
+
+.hardware-mode-pill {
+    margin-top: 6px;
+    display: inline-flex;
+    min-width: 110px;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+    .hardware-mode-pill.idle {
+        background: rgba(47, 125, 191, 0.12);
+        color: var(--blue);
+    }
+
+    .hardware-mode-pill.assign {
+        background: rgba(255, 154, 0, 0.15);
+        color: #b26a00;
+    }
+
+    .hardware-mode-pill.attendance {
+        background: rgba(22, 138, 58, 0.12);
+        color: #168a3a;
+    }
+
+.hardware-actions {
+    display: grid;
+    gap: 14px;
+    width: 320px;
+    max-width: 100%;
+}
+
+.hardware-action-btn {
+    width: 100%;
+    min-height: 50px;
+    border-radius: 10px;
+}
+
+    .hardware-action-btn.stop {
+        background: #b00020;
+    }
+
+    .hardware-action-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.hardware-warning {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(176, 0, 32, 0.1);
+    border: 1px solid rgba(176, 0, 32, 0.18);
+    color: #7a0016;
+    font-weight: 750;
+}
+
+.hardware-note {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(47, 125, 191, 0.08);
+    border: 1px solid rgba(47, 125, 191, 0.16);
+    color: var(--text);
+    font-weight: 650;
+    line-height: 1.5;
+}
+
 .rfid-card {
     width: min(1280px, 95vw);
     min-height: 700px;
@@ -1828,8 +2191,8 @@ body {
     margin-top: 22px;
     padding: 14px 16px;
     border-radius: 16px;
-    background: rgba(47, 125, 191, 0.08);
-    border: 1px solid rgba(47, 125, 191, 0.16);
+    background: rgba(47, 125, 191, 0.06);
+    border: 1px solid rgba(47, 125, 191, 0.13);
     color: var(--text);
     font-weight: 650;
 }
@@ -1921,162 +2284,63 @@ body {
     min-width: 90px;
     padding: 10px 14px;
     font-size: 14px;
+    border-radius: 10px;
 }
 
-.rfid-table-scroll::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-.rfid-table-scroll::-webkit-scrollbar-track {
-    background: rgba(15, 43, 70, 0.06);
-    border-radius: 999px;
-}
-
-.rfid-table-scroll::-webkit-scrollbar-thumb {
-    background: rgba(47, 125, 191, 0.35);
-    border-radius: 999px;
-}
-
-    .rfid-table-scroll::-webkit-scrollbar-thumb:hover {
-        background: rgba(47, 125, 191, 0.55);
-    }
-
-@media (max-width: 900px) {
-    .rfid-card {
-        min-height: auto;
-    }
-
-    .rfid-header {
-        flex-direction: column;
-    }
-
-    .rfid-table-scroll {
-        height: 360px;
-    }
-}
-
-.hardware-card {
-    width: min(1180px, 94vw);
-    min-height: 660px;
-    padding: 42px 48px;
-}
-
-.hardware-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-}
-
-.hardware-grid {
-    margin-top: 28px;
-    display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: 26px;
-    align-items: stretch;
-}
-
-.hardware-panel {
-    background: rgba(255, 255, 255, 0.68);
-    border-radius: 18px;
-    padding: 22px;
-    box-shadow: 0 12px 28px rgba(0, 60, 120, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-}
-
-    .hardware-panel h2 {
-        margin: 0 0 18px 0;
-        color: var(--text);
-        font-size: 30px;
-        font-weight: 700;
-    }
-
-.hardware-status-card {
-    margin-top: 12px;
-    padding: 14px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid rgba(15, 43, 70, 0.06);
-}
-
-.hardware-label {
-    color: var(--muted);
-    font-weight: 750;
-    font-size: 13px;
-}
-
-.hardware-value {
-    margin-top: 4px;
-    color: var(--text);
-    font-weight: 850;
-    word-break: break-word;
-}
-
-.hardware-mode-pill {
-    margin-top: 6px;
+.btn-secondary-soft {
     display: inline-flex;
-    min-width: 110px;
+    align-items: center;
     justify-content: center;
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 850;
+    min-width: 110px;
+    min-height: 42px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(47, 125, 191, 0.24);
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--blue);
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-    .hardware-mode-pill.idle {
-        background: rgba(47, 125, 191, 0.12);
-        color: var(--blue);
+    .btn-secondary-soft:hover {
+        background: rgba(47, 125, 191, 0.08);
     }
 
-    .hardware-mode-pill.assign {
-        background: rgba(255, 154, 0, 0.15);
-        color: #b26a00;
-    }
-
-    .hardware-mode-pill.attendance {
-        background: rgba(22, 138, 58, 0.12);
-        color: #168a3a;
-    }
-
-.hardware-actions {
-    display: grid;
-    gap: 14px;
+.btn-danger-soft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    min-height: 42px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(176, 0, 32, 0.24);
+    background: rgba(255, 255, 255, 0.72);
+    color: #a0001d;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.hardware-action-btn {
-    width: 220px;
-}
-
-    .hardware-action-btn.stop {
-        background: linear-gradient(180deg, #b00020 0%, #7a0016 100%);
+    .btn-danger-soft:hover {
+        background: rgba(176, 0, 32, 0.08);
     }
 
-    .hardware-action-btn:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-.hardware-warning {
-    margin-bottom: 16px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: rgba(176, 0, 32, 0.1);
-    border: 1px solid rgba(176, 0, 32, 0.18);
-    color: #7a0016;
-    font-weight: 750;
+.action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.hardware-note {
-    margin-top: 20px;
-    padding: 14px 16px;
-    border-radius: 16px;
-    background: rgba(47, 125, 191, 0.08);
-    border: 1px solid rgba(47, 125, 191, 0.16);
-    color: var(--text);
-    font-weight: 650;
-    line-height: 1.5;
+.class-report-table .btn-secondary-soft {
+    min-width: 90px;
+}
+
+.attendance-record-row .btn-danger-soft {
+    min-width: 90px;
 }
 
 @media (max-width: 900px) {
@@ -2084,11 +2348,1074 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .hardware-header {
+    .hardware-header,
+    .rfid-header {
         flex-direction: column;
     }
 
-    .hardware-card {
+    .hardware-card,
+    .rfid-card {
         min-height: auto;
     }
+
+    .rfid-table-scroll {
+        height: 360px;
+    }
+}
+
+body,
+button,
+input,
+select,
+textarea {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-weight: 400;
+}
+
+.brand {
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.hero-title,
+.hero-title span,
+h1,
+h2,
+h3 {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+    .hero-title span {
+        font-weight: 400;
+    }
+
+.muted,
+.hardware-label,
+.rfid-table th,
+.class-report-table th,
+.stat-label,
+.course-type,
+.student-label {
+    font-weight: 500;
+}
+
+.course-title,
+.hardware-value,
+.rfid-table td,
+.class-report-table td,
+.student-email,
+.record-date {
+    font-weight: 500;
+}
+
+.btn-primary-soft,
+button.btn-primary-soft,
+a.btn-primary-soft {
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.35);
+    box-shadow: none;
+    border-radius: 6px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+    .btn-primary-soft:hover,
+    button.btn-primary-soft:hover,
+    a.btn-primary-soft:hover {
+        background: rgba(31, 111, 174, 0.06);
+        color: #155b91;
+        transform: none;
+        box-shadow: none;
+    }
+
+.choice-buttons .btn-primary-soft {
+    min-width: 170px;
+    min-height: 46px;
+    background: #2f7dbf;
+    color: #ffffff;
+    border: 1px solid #2f7dbf;
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .choice-buttons .btn-primary-soft:hover {
+        background: #276fae;
+        color: #ffffff;
+    }
+
+.add-course-btn,
+.course-header-actions .btn-primary-soft,
+.course-settings-btn,
+.class-report-btn {
+    min-height: 40px;
+    padding: 8px 18px;
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.35);
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .add-course-btn:hover,
+    .course-header-actions .btn-primary-soft:hover,
+    .course-settings-btn:hover,
+    .class-report-btn:hover {
+        background: rgba(31, 111, 174, 0.06);
+        color: #155b91;
+        box-shadow: none;
+    }
+
+.hardware-action-btn {
+    width: 100%;
+    min-height: 46px;
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.35);
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .hardware-action-btn:hover {
+        background: rgba(31, 111, 174, 0.06);
+    }
+
+    .hardware-action-btn.stop {
+        background: #ffffff;
+        color: #9b001c;
+        border: 1px solid rgba(176, 0, 32, 0.35);
+        box-shadow: none;
+    }
+
+        .hardware-action-btn.stop:hover {
+            background: rgba(176, 0, 32, 0.06);
+        }
+
+.btn-secondary-soft {
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.3);
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .btn-secondary-soft:hover {
+        background: rgba(31, 111, 174, 0.06);
+    }
+
+.btn-danger-soft {
+    background: #ffffff;
+    color: #9b001c;
+    border: 1px solid rgba(176, 0, 32, 0.32);
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .btn-danger-soft:hover {
+        background: rgba(176, 0, 32, 0.06);
+    }
+
+.rfid-save-btn {
+    min-width: 82px;
+    min-height: 40px;
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.35);
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .rfid-save-btn:hover {
+        background: rgba(31, 111, 174, 0.06);
+    }
+
+.form-box button,
+.auth-form button,
+.settings-save-btn {
+    background: #2f7dbf;
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 500;
+}
+
+    .form-box button:hover,
+    .auth-form button:hover,
+    .settings-save-btn:hover {
+        background: #276fae;
+        transform: none;
+        box-shadow: none;
+    }
+
+.course-card,
+.student-row,
+.record-row,
+.rfid-table td,
+.hardware-status-card,
+.stat-box,
+.class-summary-card {
+    font-weight: 400;
+}
+
+    .course-card strong,
+    .student-row strong,
+    .record-row strong,
+    .rfid-table strong {
+        font-weight: 500;
+    }
+
+.student-course-card .hero-title,
+.student-details-card .hero-title,
+.student-dashboard-card .hero-title,
+.course-details-card .hero-title {
+    font-weight: 400;
+}
+
+.student-summary-card h2,
+.student-records-card h2,
+.attendance-overview h2,
+.records-panel h2,
+.overview-panel h2 {
+    font-weight: 500;
+}
+
+.student-summary-card,
+.student-records-card,
+.attendance-overview,
+.records-panel,
+.overview-panel {
+    font-weight: 400;
+}
+
+    .student-summary-card .stat-label,
+    .student-summary-card .summary-label,
+    .attendance-overview .stat-label,
+    .overview-panel .stat-label {
+        font-weight: 500;
+    }
+
+    .student-summary-card .stat-value,
+    .student-summary-card .summary-value,
+    .attendance-overview .stat-value,
+    .overview-panel .stat-value {
+        font-weight: 500;
+    }
+
+    .record-date,
+    .record-status,
+    .records-panel strong,
+    .student-records-card strong {
+        font-weight: 500;
+    }
+
+.timeline-card h3,
+.attendance-timeline h3 {
+    font-weight: 500;
+}
+
+.timeline-toggle,
+.timeline-button,
+.timeline-card button,
+.attendance-timeline button {
+    font-weight: 500;
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+    .timeline-toggle.active,
+    .timeline-button.active,
+    .timeline-card button.active,
+    .attendance-timeline button.active {
+        background: #ffffff;
+        color: #1f6fae;
+        border: 1px solid rgba(31, 111, 174, 0.35);
+    }
+
+.export-pdf-btn,
+.timeline-card .btn-primary-soft,
+.attendance-timeline .btn-primary-soft {
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.35);
+    box-shadow: none;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+    .export-pdf-btn:hover,
+    .timeline-card .btn-primary-soft:hover,
+    .attendance-timeline .btn-primary-soft:hover {
+        background: rgba(31, 111, 174, 0.06);
+        color: #155b91;
+    }
+.choice-buttons .btn-primary-soft,
+.choice-buttons a.btn-primary-soft,
+.hero-card .choice-buttons .btn-primary-soft {
+    background: #ffffff;
+    color: #1f6fae;
+    border: 1px solid rgba(31, 111, 174, 0.35);
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 400;
+    min-width: 165px;
+    min-height: 42px;
+    padding: 9px 18px;
+}
+
+    .choice-buttons .btn-primary-soft:hover,
+    .choice-buttons a.btn-primary-soft:hover,
+    .hero-card .choice-buttons .btn-primary-soft:hover {
+        background: rgba(31, 111, 174, 0.06);
+        color: #155b91;
+        box-shadow: none;
+        transform: none;
+    }
+
+.timeline-toggle,
+.timeline-toggle.active,
+.timeline-card button,
+.timeline-card button.active,
+.attendance-timeline button,
+.attendance-timeline button.active,
+.student-course-card button,
+.student-course-card .btn-primary-soft,
+.student-course-card .btn-secondary-soft,
+.student-course-card a.btn-primary-soft,
+.student-course-card a.btn-secondary-soft,
+.student-course-card a,
+.student-course-card button {
+    box-shadow: none;
+    border-radius: 6px;
+    font-weight: 400;
+}
+
+    .timeline-toggle.active,
+    .timeline-card button.active,
+    .attendance-timeline button.active,
+    .student-course-card .active {
+        background: #ffffff;
+        color: #1f6fae;
+        border: 1px solid rgba(31, 111, 174, 0.35);
+    }
+
+    .student-course-card .btn-primary-soft,
+    .student-course-card a.btn-primary-soft,
+    .student-course-card button.btn-primary-soft,
+    .attendance-timeline .btn-primary-soft,
+    .timeline-card .btn-primary-soft {
+        background: #ffffff;
+        color: #1f6fae;
+        border: 1px solid rgba(31, 111, 174, 0.35);
+    }
+
+        .student-course-card .btn-primary-soft:hover,
+        .student-course-card a.btn-primary-soft:hover,
+        .student-course-card button.btn-primary-soft:hover,
+        .attendance-timeline .btn-primary-soft:hover,
+        .timeline-card .btn-primary-soft:hover {
+            background: rgba(31, 111, 174, 0.06);
+            color: #155b91;
+            transform: none;
+            box-shadow: none;
+        }
+
+.student-course-card,
+.student-course-card *,
+.student-dashboard-card,
+.student-dashboard-card *,
+.course-details-card,
+.course-details-card *,
+.attendance-card,
+.attendance-card *,
+.overview-card,
+.overview-card *,
+.records-card,
+.records-card * {
+    font-weight: 400;
+}
+
+    .student-course-card .brand,
+    .student-dashboard-card .brand,
+    .course-details-card .brand,
+    .student-course-card .hero-title,
+    .student-dashboard-card .hero-title,
+    .course-details-card .hero-title {
+        font-weight: 400;
+    }
+
+    .student-course-card h1,
+    .student-course-card h2,
+    .student-course-card h3,
+    .student-dashboard-card h1,
+    .student-dashboard-card h2,
+    .student-dashboard-card h3,
+    .course-details-card h1,
+    .course-details-card h2,
+    .course-details-card h3,
+    .overview-card h2,
+    .records-card h2 {
+        font-weight: 400;
+    }
+
+    .student-course-card .stat-value,
+    .student-course-card .record-date,
+    .student-course-card .record-status,
+    .student-course-card strong,
+    .overview-card .stat-value,
+    .records-card .record-date,
+    .records-card strong {
+        font-weight: 500;
+    }
+
+    .student-course-card .stat-label,
+    .overview-card .stat-label,
+    .records-card .muted,
+    .student-course-card .muted {
+        font-weight: 400;
+    }
+
+.attendance-timeline h3,
+.timeline-card h3 {
+    font-weight: 400;
+}
+
+.attendance-timeline .timeline-label,
+.attendance-timeline .timeline-percent,
+.timeline-card .timeline-label,
+.timeline-card .timeline-percent {
+    font-weight: 400;
+}
+
+.student-attendance-card,
+.student-attendance-card * {
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+    .student-attendance-card .brand {
+        font-weight: 500 !important;
+    }
+
+    .student-attendance-card .hero-title {
+        font-weight: 300 !important;
+        font-size: 36px !important;
+        letter-spacing: 0 !important;
+    }
+
+    .student-attendance-card .muted {
+        font-weight: 400 !important;
+    }
+
+.student-attendance-left h2,
+.student-attendance-right h2 {
+    font-weight: 400 !important;
+    font-size: 26px !important;
+    letter-spacing: 0 !important;
+}
+
+.stat-mini-label {
+    font-weight: 400 !important;
+    font-size: 13px !important;
+}
+
+.stat-mini-value {
+    font-weight: 500 !important;
+    font-size: 22px !important;
+}
+
+.chart-title {
+    font-weight: 400 !important;
+    font-size: 17px !important;
+}
+
+.chart-label,
+.chart-percent {
+    font-weight: 400 !important;
+}
+
+.attendance-date {
+    font-weight: 500 !important;
+    font-size: 16px !important;
+}
+
+.attendance-status {
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+
+.attendance-record-row {
+    box-shadow: none !important;
+}
+
+.student-chart-card {
+    box-shadow: none !important;
+}
+
+.chart-toggle,
+.chart-export {
+    font-weight: 400 !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+
+    .chart-toggle.active {
+        background: #ffffff !important;
+        color: #1f6fae !important;
+        border: 1px solid rgba(31, 111, 174, 0.35) !important;
+    }
+
+.attendance-list-header .btn-primary-soft {
+    background: #ffffff !important;
+    color: #1f6fae !important;
+    border: 1px solid rgba(31, 111, 174, 0.35) !important;
+    box-shadow: none !important;
+    font-weight: 400 !important;
+    border-radius: 6px !important;
+}
+
+    .attendance-list-header .btn-primary-soft:hover {
+        background: rgba(31, 111, 174, 0.06) !important;
+    }
+
+.week-graph-card {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(15, 43, 70, 0.06);
+}
+
+.week-graph-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+    .week-graph-header h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 400;
+        color: var(--text);
+    }
+
+.week-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.week-nav-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    border: 1px solid rgba(31, 111, 174, 0.32);
+    background: #ffffff;
+    color: #1f6fae;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+}
+
+    .week-nav-btn:hover {
+        background: rgba(31, 111, 174, 0.06);
+    }
+
+    .week-nav-btn.disabled {
+        opacity: 0.35;
+        cursor: default;
+    }
+
+.week-label {
+    min-width: 150px;
+    text-align: center;
+    color: var(--text);
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+    .week-label span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 400;
+    }
+
+.week-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 400;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid rgba(15, 43, 70, 0.05);
+}
+
+.week-graph-list {
+    display: grid;
+    gap: 12px;
+}
+
+.week-session-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 90px;
+    gap: 12px;
+    align-items: center;
+}
+
+.week-session-date {
+    color: var(--text);
+    font-weight: 400;
+}
+
+.week-stack {
+    height: 30px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    background: rgba(31, 111, 174, 0.08);
+    border: 1px solid rgba(15, 43, 70, 0.05);
+}
+
+.week-segment {
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 6px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+    .week-segment.present {
+        background: #188a3a;
+    }
+
+    .week-segment.recovered {
+        background: #2288c8;
+    }
+
+    .week-segment.absent {
+        background: #b00020;
+    }
+
+.week-session-total {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+    text-align: right;
+}
+
+.week-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+}
+
+    .week-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .week-legend i {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        border-radius: 50%;
+    }
+
+.legend-present {
+    background: #188a3a;
+}
+
+.legend-recovered {
+    background: #2288c8;
+}
+
+.legend-absent {
+    background: #b00020;
+}
+
+@media (max-width: 900px) {
+    .week-graph-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .week-session-row {
+        grid-template-columns: 1fr;
+    }
+
+    .week-session-total {
+        text-align: left;
+    }
+}
+.week-pie-card {
+    margin-top: 24px;
+}
+
+.week-pie-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+    .week-pie-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #203a57;
+    }
+
+.week-pie-nav {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.week-nav-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid #b8d1ea;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #2f86c7;
+    font-size: 24px;
+    background: #fff;
+    transition: 0.2s ease;
+}
+
+    .week-nav-btn:hover {
+        background: #f5f9fd;
+    }
+
+    .week-nav-btn.disabled {
+        color: #b7c7d8;
+        border-color: #d5e1ec;
+        background: #f8fbfe;
+        pointer-events: none;
+    }
+
+.week-pie-period {
+    text-align: center;
+    min-width: 190px;
+}
+
+.week-pie-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #203a57;
+    line-height: 1.2;
+}
+
+.week-pie-dates {
+    font-size: 14px;
+    color: #708399;
+    margin-top: 4px;
+}
+
+.week-pie-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 42px;
+    padding: 10px 0 4px 0;
+}
+
+.week-pie-visual-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.week-pie-visual {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    border: 6px solid #203a57;
+    box-shadow: 0 8px 20px rgba(32, 58, 87, 0.08);
+    flex-shrink: 0;
+}
+
+.week-pie-summary {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.week-pie-row {
+    display: grid;
+    grid-template-columns: 16px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: #203a57;
+}
+
+    .week-pie-row .label {
+        color: #5f7388;
+    }
+
+    .week-pie-row .value {
+        font-weight: 600;
+        color: #203a57;
+    }
+
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+    .dot.present {
+        background: #1f8f3a;
+    }
+
+    .dot.recovered {
+        background: #2f86c7;
+    }
+
+    .dot.absent {
+        background: #c8102e;
+    }
+
+.week-pie-total {
+    margin-top: 8px;
+    font-size: 15px;
+    color: #708399;
+}
+
+.week-empty-state {
+    padding: 34px 20px;
+    text-align: center;
+    font-size: 16px;
+    color: #708399;
+    border: 1px dashed #c9d8e6;
+    border-radius: 12px;
+    background: #f8fbfe;
+}
+
+.week-pie-card {
+    margin-top: 14px !important;
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+}
+
+.week-pie-header {
+    margin-bottom: 10px !important;
+    gap: 12px !important;
+    align-items: flex-start !important;
+}
+
+    .week-pie-header h3 {
+        font-size: 16px !important;
+        line-height: 1.15 !important;
+        font-weight: 400 !important;
+    }
+
+.week-pie-period {
+    min-width: 130px !important;
+}
+
+.week-pie-title {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+}
+
+.week-pie-dates {
+    font-size: 12px !important;
+    margin-top: 2px !important;
+}
+
+.week-pie-body {
+    display: grid !important;
+    grid-template-columns: 34px 150px 34px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding: 4px 0 6px 0 !important;
+}
+
+.week-pie-visual {
+    width: 145px !important;
+    height: 145px !important;
+    border-width: 3px !important;
+    box-shadow: none !important;
+}
+
+.week-nav-btn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 7px !important;
+    font-size: 18px !important;
+}
+
+.week-pie-summary {
+    margin-top: 6px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, auto) !important;
+    justify-content: center !important;
+    gap: 10px 14px !important;
+    min-width: 0 !important;
+}
+
+.week-pie-row {
+    display: inline-grid !important;
+    grid-template-columns: 10px auto auto !important;
+    gap: 6px !important;
+    align-items: center !important;
+    font-size: 13px !important;
+}
+
+    .week-pie-row .label {
+        font-size: 13px !important;
+    }
+
+    .week-pie-row .value {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+    }
+
+.dot {
+    width: 9px !important;
+    height: 9px !important;
+}
+
+.week-pie-total {
+    grid-column: 1 / -1 !important;
+    margin-top: 0 !important;
+    text-align: center !important;
+    font-size: 12px !important;
+}
+
+.week-empty-state {
+    padding: 18px 14px !important;
+    font-size: 14px !important;
+}
+
+.week-pie-nav-only {
+    display: grid !important;
+    grid-template-columns: 34px 1fr 34px !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.course-view-card {
+    padding-top: 34px !important;
+    padding-bottom: 30px !important;
+    min-height: auto !important;
+}
+
+.course-view-header {
+    margin-bottom: 20px !important;
+}
+
+.course-view-grid {
+    gap: 20px !important;
+    align-items: start !important;
+}
+
+.course-info-card,
+.course-students-card {
+    padding: 20px !important;
+}
+
+    .course-info-card h2,
+    .course-students-card h2 {
+        margin-bottom: 14px !important;
+        font-size: 26px !important;
+    }
+
+.stat-box-grid {
+    gap: 10px !important;
+}
+
+.stat-mini-card {
+    min-height: 72px !important;
+    padding: 12px 14px !important;
+}
+
+.stat-mini-label {
+    font-size: 12px !important;
+}
+
+.stat-mini-value {
+    font-size: 20px !important;
+}
+
+.students-search-wrap {
+    margin-bottom: 10px !important;
+}
+
+.students-search-input {
+    height: 42px !important;
+}
+
+.student-row {
+    min-height: 58px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 10px !important;
+}
+
+.student-action-btn {
+    min-height: 38px !important;
+    padding: 7px 14px !important;
+}
+
+.week-pie-card {
+    margin-top: 10px !important;
+    padding: 12px 14px !important;
+}
+
+.week-pie-header {
+    margin-bottom: 6px !important;
+}
+
+.week-pie-body {
+    grid-template-columns: 30px 130px 30px !important;
+    gap: 12px !important;
+    padding: 0 0 4px 0 !important;
+}
+
+.week-pie-visual {
+    width: 128px !important;
+    height: 128px !important;
+}
+
+.week-nav-btn {
+    width: 29px !important;
+    height: 29px !important;
+    font-size: 16px !important;
+}
+
+.week-pie-summary {
+    margin-top: 4px !important;
+    gap: 7px 12px !important;
+}
+
+.week-pie-total {
+    font-size: 11px !important;
 }

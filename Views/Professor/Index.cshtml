@@ -85,22 +85,24 @@
                                 <div class="stat-val">@c.AttendancePercent%</div>
                             </div>
 
-                            <div class="course-actions">
-                                <a class="icon-btn"
-                                   href="@Url.Action("Course", "Professor", new { id = c.Id })"
-                                   title="View Course">👁️</a>
+                            <div class="course-actions action-buttons">
+                                <a class="btn-secondary-soft"
+                                   href="@Url.Action("Course", "Professor", new { id = c.Id })">
+                                    View
+                                </a>
 
-                                <a class="icon-btn"
-                                   href="@Url.Action("AddStudents", "Professor", new { courseId = c.Id })"
-                                   title="Add Students">✏️</a>
+                                <a class="btn-secondary-soft"
+                                   href="@Url.Action("AddStudents", "Professor", new { courseId = c.Id })">
+                                    Add students
+                                </a>
 
                                 <form method="post" action="@Url.Action("DeleteCourse", "Professor")" style="display:inline;">
                                     <input type="hidden" name="id" value="@c.Id" />
-                                    <button class="icon-btn danger"
+
+                                    <button class="btn-danger-soft"
                                             type="submit"
-                                            title="Delete Course"
                                             onclick="return confirm('Delete this course?');">
-                                        🗑️
+                                        Delete
                                     </button>
                                 </form>
                             </div>

@@ -22,7 +22,7 @@
 
             <a href="@Url.Action("Course", "Professor", new { id = Model.CourseId })"
                class="course-back-link">
-                ← Back to Course
+                Back to course
             </a>
         </div>
 
@@ -34,7 +34,7 @@
         }
 
         <div class="rfid-info-panel">
-            Assign or update RFID tags for enrolled students. The same active RFID tag can be reused by the student across multiple courses.
+            RFID tags can be assigned manually here or through the hardware assignment mode. A student can keep the same tag across multiple courses.
         </div>
 
         <div class="rfid-table-card">
@@ -112,11 +112,10 @@
                                                 <input type="hidden" name="courseId" value="@Model.CourseId" />
                                                 <input type="hidden" name="studentId" value="@student.StudentId" />
 
-                                                <button class="icon-btn danger"
+                                                <button class="btn-danger-soft"
                                                         type="submit"
-                                                        title="Remove RFID Tag"
                                                         onclick="return confirm('Remove this RFID tag?');">
-                                                    🗑️
+                                                    Remove
                                                 </button>
                                             </form>
                                         }
