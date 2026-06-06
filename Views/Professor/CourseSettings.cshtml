@@ -1,5 +1,4 @@
-﻿@using System.Globalization
-@model SmartAttendance.Models.Course
+﻿@model SmartAttendance.Models.Course
 
 @{
     ViewData["Title"] = "Course Settings";
@@ -14,10 +13,6 @@
         new { Value = 5, Text = "Friday" },
         new { Value = 6, Text = "Saturday" }
     };
-
-    int weekYear = ISOWeek.GetYear(DateTime.Today);
-    int weekNumber = ISOWeek.GetWeekOfYear(DateTime.Today);
-    string currentWeek = $"{weekYear}-W{weekNumber:00}";
 }
 
 <div class="app-shell">
@@ -32,7 +27,7 @@
                 </div>
 
                 <div class="muted">
-                    @Model.Name — @(Model.IsLab ? "Laboratory" : "Course")
+                    @Model.Name - @(Model.IsLab ? "Laboratory" : "Course")
                 </div>
             </div>
 
@@ -80,98 +75,65 @@
                 </div>
             </div>
 
-            <div class="settings-section">
+            <div class="settings-section settings-section-compact">
                 <div class="settings-title-row">
-                    <h2>Absence Completion</h2>
+                    <h2>Automatic Absence Completion</h2>
 
                     <span class="settings-helper">
-                        Complete missing attendance marks manually or automatically.
+                        Complete missing attendance marks automatically after the weekly attendance period.
                     </span>
                 </div>
 
-                <div class="completion-panels">
-                    <div class="completion-panel">
-                        <div class="completion-panel-header">
-                            <h3>Manual</h3>
+                <label class="automatic-toggle">
+                    @if (Model.AutoFillAbsencesEnabled)
+                    {
+                        <input type="checkbox"
+                               name="autoFillAbsencesEnabled"
+                               value="true"
+                               checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox"
+                               name="autoFillAbsencesEnabled"
+                               value="true" />
+                    }
+
+                    <span>Enable automatic absence completion</span>
+                </label>
+
+                <div class="automatic-grid settings-auto-grid">
+                    <div>
+                        <div class="settings-field">
+                            <label class="lbl">Completion Day</label>
+                            <select class="form-control" name="autoFillDayOfWeek">
+                                @foreach (var day in days)
+                                {
+                                    if (Model.AutoFillDayOfWeek == day.Value)
+                                    {
+                                        <option value="@day.Value" selected>@day.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@day.Value">@day.Text</option>
+                                    }
+                                }
+                            </select>
                         </div>
 
                         <div class="settings-field">
-                            <label class="lbl">Select Week</label>
+                            <label class="lbl">Completion Time</label>
                             <input class="form-control"
-                                   type="week"
-                                   name="selectedWeek"
-                                   value="@currentWeek" />
-                        </div>
-
-                        <div class="completion-description">
-                            Use this after the attendance window for a specific week has ended.
-                        </div>
-
-                        <button class="btn-primary-soft completion-button"
-                                type="submit"
-                                formaction="@Url.Action("CompleteMissingAttendance", "Professor")"
-                                formmethod="post">
-                            Apply
-                        </button>
-                    </div>
-
-                    <div class="completion-panel">
-                        <div class="completion-panel-header">
-                            <h3>Automatic</h3>
-                        </div>
-
-                        <label class="automatic-toggle">
-                            @if (Model.AutoFillAbsencesEnabled)
-                            {
-                                <input type="checkbox"
-                                       name="autoFillAbsencesEnabled"
-                                       value="true"
-                                       checked />
-                            }
-                            else
-                            {
-                                <input type="checkbox"
-                                       name="autoFillAbsencesEnabled"
-                                       value="true" />
-                            }
-
-                            <span>Enable automatic absence completion</span>
-                        </label>
-
-                        <div class="automatic-grid">
-                            <div>
-                                <div class="settings-field">
-                                    <label class="lbl">Completion Day</label>
-                                    <select class="form-control" name="autoFillDayOfWeek">
-                                        @foreach (var day in days)
-                                        {
-                                            if (Model.AutoFillDayOfWeek == day.Value)
-                                            {
-                                                <option value="@day.Value" selected>@day.Text</option>
-                                            }
-                                            else
-                                            {
-                                                <option value="@day.Value">@day.Text</option>
-                                            }
-                                        }
-                                    </select>
-                                </div>
-
-                                <div class="settings-field">
-                                    <label class="lbl">Completion Time</label>
-                                    <input class="form-control"
-                                           type="time"
-                                           name="autoFillTime"
-                                           value="@Model.AutoFillTime.ToString("hh\\:mm")" />
-                                </div>
-                            </div>
-
-                            <div class="completion-description highlight">
-                                The system only completes absences for weeks where attendance activity already exists.
-                                This prevents empty weeks or cancelled classes from being automatically marked as absences.
-                            </div>
+                                   type="time"
+                                   name="autoFillTime"
+                                   value="@Model.AutoFillTime.ToString("hh\\:mm")" />
                         </div>
                     </div>
+
+                    <p class="page-help-text settings-auto-text">
+                        The system only completes absences for weeks where attendance activity already exists.
+                        This prevents empty weeks or cancelled classes from being marked as absences.
+                    </p>
                 </div>
             </div>
 

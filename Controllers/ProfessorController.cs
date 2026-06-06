@@ -26,6 +26,11 @@ namespace SmartAttendance.Controllers
             if (professorId == null)
                 return RedirectToAction("Login", "ProfessorAuth");
 
+            var professor = _context.Professors
+                .FirstOrDefault(p => p.Id == professorId.Value);
+
+            ViewBag.ProfessorDisplayName = GetProfessorDisplayName(professor?.Email);
+
             var courses = _context.Courses
                 .Where(c => c.ProfessorId == professorId)
                 .ToList();
@@ -492,8 +497,8 @@ namespace SmartAttendance.Controllers
 
             if (!TryGetWeekRange(selectedWeek, out var weekStart, out var weekEnd))
             {
-                TempData["SettingsMessage"] = "Invalid week selected.";
-                return RedirectToAction("CourseSettings", new { id = course.Id });
+                TempData["HardwareMessage"] = "Invalid week selected.";
+                return RedirectToAction("Index", "Hardware", new { courseId = course.Id });
             }
 
             bool weekHasAttendanceActivity = _context.AttendanceRecords
@@ -505,8 +510,8 @@ namespace SmartAttendance.Controllers
 
             if (!weekHasAttendanceActivity)
             {
-                TempData["SettingsMessage"] = "No attendance activity was found for the selected week. No absences were added.";
-                return RedirectToAction("CourseSettings", new { id = course.Id });
+                TempData["HardwareMessage"] = "No attendance activity was found for the selected week. No absences were added.";
+                return RedirectToAction("Index", "Hardware", new { courseId = course.Id });
             }
 
             int addedAbsences = 0;
@@ -537,9 +542,9 @@ namespace SmartAttendance.Controllers
 
             _context.SaveChanges();
 
-            TempData["SettingsMessage"] = $"{addedAbsences} missing attendance records were marked as absent.";
+            TempData["HardwareMessage"] = $"{addedAbsences} missing attendance records were marked as absent.";
 
-            return RedirectToAction("CourseSettings", new { id = course.Id });
+            return RedirectToAction("Index", "Hardware", new { courseId = course.Id });
         }
 
         [HttpPost]
@@ -846,6 +851,30 @@ namespace SmartAttendance.Controllers
             {
                 return false;
             }
+        }
+
+        private static string GetProfessorDisplayName(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return "Professor";
+
+            var localPart = email.Split('@')[0];
+
+            localPart = localPart
+                .Replace(".", " ")
+                .Replace("_", " ")
+                .Replace("-", " ");
+
+            var cleaned = new string(localPart.Where(c => !char.IsDigit(c)).ToArray()).Trim();
+
+            if (string.IsNullOrWhiteSpace(cleaned))
+                return "Professor";
+
+            var words = cleaned
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(w => char.ToUpperInvariant(w[0]) + w.Substring(1).ToLowerInvariant());
+
+            return string.Join(" ", words);
         }
     }
 }

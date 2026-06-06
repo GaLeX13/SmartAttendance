@@ -21,7 +21,7 @@
     bool autoFillAbsencesEnabled = ViewBag.AutoFillAbsencesEnabled ?? false;
     int autoFillDayOfWeek = ViewBag.AutoFillDayOfWeek ?? 0;
     TimeSpan autoFillTime = ViewBag.AutoFillTime ?? new TimeSpan(12, 0, 0);
-    string eligibilityStatus = ViewBag.EligibilityStatus ?? "Not evaluated yet";
+    string eligibilityStatus = ViewBag.EligibilityStatus ?? "";
 
     var dayNames = new[]
     {
@@ -77,7 +77,7 @@
                 </div>
 
                 <div class="muted">
-                    @courseName — @courseType
+                    @courseName - @courseType
                 </div>
 
                 <div class="muted" style="margin-top:4px;">
@@ -132,9 +132,12 @@
                     <div class="course-rules-header">
                         <div class="chart-title">Course Rules</div>
 
-                        <span class="eligibility-pill @eligibilityClass">
-                            @eligibilityStatus
-                        </span>
+                        @if (!string.IsNullOrWhiteSpace(eligibilityStatus) && eligibilityStatus != "Not evaluated yet")
+                        {
+                            <span class="eligibility-pill @eligibilityClass">
+                                @eligibilityStatus
+                            </span>
+                        }
                     </div>
 
                     <div class="course-rules-grid">
@@ -163,12 +166,6 @@
                             Automatic absence completion is scheduled for @autoFillDayName at @autoFillTime.ToString("hh\\:mm").
                             If attendance is recorded during a week, students without a mark may be automatically marked as absent.
                             Recovered records do not start this process.
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="rule-note">
-                            Automatic absence completion is currently disabled for this course.
                         </div>
                     }
                 </div>

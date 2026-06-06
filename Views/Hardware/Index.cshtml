@@ -1,9 +1,14 @@
 ﻿@model SmartAttendance.ViewModels.HardwareControlViewModel
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Hardware Control";
 
     string modeClass = Model.CurrentMode.ToLowerInvariant();
+
+    int weekYear = ISOWeek.GetYear(DateTime.Today);
+    int weekNumber = ISOWeek.GetWeekOfYear(DateTime.Today);
+    string currentWeek = $"{weekYear}-W{weekNumber:00}";
 }
 
 <div class="app-shell">
@@ -18,7 +23,7 @@
                 </div>
 
                 <div class="muted">
-                    @Model.CourseName — @Model.CourseType
+                    @Model.CourseName - @Model.CourseType
                 </div>
             </div>
 
@@ -113,12 +118,40 @@
                             Stop Device
                         </button>
                     </form>
+
+                    <div class="hardware-week-action">
+                        <div>
+                            <div class="hardware-week-title">Complete weekly absences</div>
+
+                            <div class="hardware-week-text">
+                                Use this after an attendance session has ended.
+                                Students without an attendance record for the selected week will be marked as absent.
+                            </div>
+                        </div>
+
+                        <form method="post"
+                              action="@Url.Action("CompleteMissingAttendance", "Professor")"
+                              class="hardware-week-form">
+
+                            <input type="hidden" name="id" value="@Model.CourseId" />
+
+                            <input class="hardware-week-input"
+                                   type="week"
+                                   name="selectedWeek"
+                                   value="@currentWeek" />
+
+                            <button class="btn-danger-soft hardware-week-btn" type="submit">
+                                Mark absences
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="hardware-note">
-                    Assignment mode is used to connect RFID tags to students without an active tag.
-                    Attendance mode is used during class to mark students as present when their tag is scanned.
-                </div>
+                <p class="page-help-text hardware-description">
+                    Use assignment mode when registering RFID tags for students.
+                    Use attendance mode during class, after the students have received their tags.
+                    The board will read each tag and send the scan to the application.
+                </p>
             </div>
 
         </div>
