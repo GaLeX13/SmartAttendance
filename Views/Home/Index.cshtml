@@ -50,17 +50,28 @@
 
                 <div class="choice-right">
                     <div class="hw-title">
-                        Hardware Prototype
+                        Hardware used in the prototype
                     </div>
 
                     <div class="hw-slider">
-                        <img class="hw-slide active" src="~/img/hardware/hw1.jpg" alt="Hardware prototype view 1" />
-                        <img class="hw-slide" src="~/img/hardware/hw2.jpg" alt="Hardware prototype view 2" />
-                        <img class="hw-slide" src="~/img/hardware/hw3.jpg" alt="Hardware prototype view 3" />
+                        <img class="hw-slide active"
+                             src="~/img/hardware/hw1.jpg"
+                             asp-append-version="true"
+                             alt="ESP32 development board" />
+
+                        <img class="hw-slide"
+                             src="~/img/hardware/hw2.jpg"
+                             asp-append-version="true"
+                             alt="RFID RC522 reader module" />
+
+                        <img class="hw-slide"
+                             src="~/img/hardware/hw3.jpg"
+                             asp-append-version="true"
+                             alt="RFID tags" />
                     </div>
 
                     <div class="hw-caption" id="hwCaption">
-                        ESP32 prototype with RFID attendance support
+                        ESP32 development board used as the local hardware controller
                     </div>
                 </div>
 
@@ -91,10 +102,10 @@
 
 <script>
     const slides = Array.from(document.querySelectorAll(".hw-slide"));
-    const captions = [
-        "ESP32 prototype with RFID attendance support",
-        "RFID reader used for fast student identification",
-        "Hardware setup prepared for attendance validation"
+            const captions = [
+        "ESP32 development board used as the local hardware controller",
+        "RFID RC522 reader used for reading student RFID tags",
+        "RFID tags used as physical identifiers for students"
     ];
 
     const captionEl = document.getElementById("hwCaption");
