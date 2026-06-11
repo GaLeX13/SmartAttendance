@@ -23,17 +23,64 @@ namespace SmartAttendance.Controllers
         public IActionResult Index()
         {
             var professorId = HttpContext.Session.GetInt32("ProfessorId");
+
             if (professorId == null)
                 return RedirectToAction("Login", "ProfessorAuth");
 
             var professor = _context.Professors
+                .AsNoTracking()
                 .FirstOrDefault(p => p.Id == professorId.Value);
 
-            ViewBag.ProfessorDisplayName = GetProfessorDisplayName(professor?.Email);
+            ViewBag.ProfessorDisplayName =
+                GetProfessorDisplayName(professor?.Email);
 
             var courses = _context.Courses
-                .Where(c => c.ProfessorId == professorId)
+                .AsNoTracking()
+                .Include(c => c.CourseStudents)
+                .Where(c => c.ProfessorId == professorId.Value)
+                .OrderBy(c => c.Name)
                 .ToList();
+
+            var records =
+                (
+                    from attendance in _context.AttendanceRecords.AsNoTracking()
+                    join course in _context.Courses.AsNoTracking()
+                        on attendance.CourseId equals course.Id
+                    where course.ProfessorId == professorId.Value
+                    select attendance
+                )
+                .ToList();
+
+            foreach (var course in courses)
+            {
+                course.StudentCount = course.CourseStudents.Count;
+
+                var courseRecords = records
+                    .Where(a => a.CourseId == course.Id)
+                    .ToList();
+
+                int presentCount = courseRecords.Count(
+                    a => a.Status == "Present");
+
+                int absentCount = courseRecords.Count(
+                    a => a.Status == "Absent");
+
+                int recoveredCount = courseRecords.Count(
+                    a => a.Status == "Recovered");
+
+                int countedSessions =
+                    presentCount + absentCount;
+
+                int effectiveAbsences =
+                    Math.Max(0, absentCount - recoveredCount);
+
+                course.AttendancePercent =
+                    countedSessions == 0
+                        ? 0
+                        : (int)Math.Round(
+                            ((countedSessions - effectiveAbsences) * 100.0)
+                            / countedSessions);
+            }
 
             return View(courses);
         }

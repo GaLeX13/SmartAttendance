@@ -25,8 +25,8 @@
 #define OLED_RESET -1
 #define OLED_ADDRESS 0x3C
 
-const char* WIFI_SSID = "Alex king";
-const char* WIFI_PASSWORD = "alex0000";
+const char* WIFI_SSID = "Smart Attendance";
+const char* WIFI_PASSWORD = "12345678UCV";
 
 const char* DEVICE_KEY = "BOARD01";
 const char* SERVER_BASE_URL = "https://se-lab-testapp-005-alex.azurewebsites.net";
