@@ -8,16 +8,21 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SmartAttendance.Services;
 
 namespace SmartAttendance.Controllers
 {
     public class ProfessorController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly AttendanceCompletionService _attendanceCompletionService;
 
-        public ProfessorController(AppDbContext context)
+        public ProfessorController(
+            AppDbContext context,
+            AttendanceCompletionService attendanceCompletionService)
         {
             _context = context;
+            _attendanceCompletionService = attendanceCompletionService;
         }
 
         public IActionResult Index()
@@ -529,69 +534,66 @@ namespace SmartAttendance.Controllers
         }
 
         [HttpPost]
-        public IActionResult CompleteMissingAttendance(int id, string selectedWeek)
+        public async Task<IActionResult> CompleteMissingAttendance(
+    int id,
+    string selectedWeek,
+    CancellationToken cancellationToken)
         {
             var professorId = HttpContext.Session.GetInt32("ProfessorId");
+
             if (professorId == null)
                 return RedirectToAction("Login", "ProfessorAuth");
 
-            var course = _context.Courses
-                .Include(c => c.CourseStudents)
-                .FirstOrDefault(c => c.Id == id && c.ProfessorId == professorId);
+            var course = await _context.Courses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    c => c.Id == id &&
+                         c.ProfessorId == professorId.Value,
+                    cancellationToken);
 
             if (course == null)
                 return RedirectToAction("Index");
 
-            if (!TryGetWeekRange(selectedWeek, out var weekStart, out var weekEnd))
+            if (!TryGetWeekRange(
+                selectedWeek,
+                out var weekStart,
+                out _))
             {
-                TempData["HardwareMessage"] = "Invalid week selected.";
-                return RedirectToAction("Index", "Hardware", new { courseId = course.Id });
+                TempData["HardwareMessage"] =
+                    "Invalid week selected.";
+
+                return RedirectToAction(
+                    "Index",
+                    "Hardware",
+                    new { courseId = course.Id });
             }
 
-            bool weekHasAttendanceActivity = _context.AttendanceRecords
-                .Any(a =>
-                    a.CourseId == course.Id &&
-                    a.Date >= weekStart &&
-                    a.Date <= weekEnd &&
-                    a.Status != "Recovered");
+            var result =
+                await _attendanceCompletionService.CompleteWeekAsync(
+                    course.Id,
+                    weekStart,
+                    cancellationToken);
 
-            if (!weekHasAttendanceActivity)
+            if (!result.HasAttendanceActivity)
             {
-                TempData["HardwareMessage"] = "No attendance activity was found for the selected week. No absences were added.";
-                return RedirectToAction("Index", "Hardware", new { courseId = course.Id });
+                TempData["HardwareMessage"] =
+                    "No Present or Recovered attendance activity was found for the selected week. No absences were added.";
+            }
+            else if (result.AddedAbsences == 0)
+            {
+                TempData["HardwareMessage"] =
+                    "Attendance completion finished. No missing attendance records were found.";
+            }
+            else
+            {
+                TempData["HardwareMessage"] =
+                    $"{result.AddedAbsences} missing attendance records were marked as absent.";
             }
 
-            int addedAbsences = 0;
-
-            foreach (var courseStudent in course.CourseStudents)
-            {
-                bool studentHasNormalMark = _context.AttendanceRecords
-                    .Any(a =>
-                        a.CourseId == course.Id &&
-                        a.StudentId == courseStudent.StudentId &&
-                        a.Date >= weekStart &&
-                        a.Date <= weekEnd &&
-                        a.Status != "Recovered");
-
-                if (!studentHasNormalMark)
-                {
-                    _context.AttendanceRecords.Add(new AttendanceRecord
-                    {
-                        CourseId = course.Id,
-                        StudentId = courseStudent.StudentId,
-                        Date = weekEnd,
-                        Status = "Absent"
-                    });
-
-                    addedAbsences++;
-                }
-            }
-
-            _context.SaveChanges();
-
-            TempData["HardwareMessage"] = $"{addedAbsences} missing attendance records were marked as absent.";
-
-            return RedirectToAction("Index", "Hardware", new { courseId = course.Id });
+            return RedirectToAction(
+                "Index",
+                "Hardware",
+                new { courseId = course.Id });
         }
 
         [HttpPost]

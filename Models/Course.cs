@@ -26,6 +26,8 @@
 
         public TimeSpan AutoFillTime { get; set; } = new TimeSpan(12, 0, 0);
 
+        public DateTime? LastAutoFillWeekStart { get; set; }
+
         public ICollection<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
     }
 }

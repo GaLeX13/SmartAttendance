@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartAttendance.Data;
+using SmartAttendance.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorNumbersToAdd: null);
         }));
+
+builder.Services.AddScoped<AttendanceCompletionService>();
+builder.Services.AddHostedService<AttendanceCompletionWorker>();
 
 var app = builder.Build();
 
